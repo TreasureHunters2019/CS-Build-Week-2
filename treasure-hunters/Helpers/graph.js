@@ -15,10 +15,10 @@ const dfs = (current_room_id, target_room_id) => {
     let visited = {};
 
     while (stack.length) {
-        path = stack.pop();
+        var path = stack.pop();
 
         // Get the last node in the path
-        node = path[path.length - 1];
+        var node = path[path.length - 1];
 
         // Check if the room has been visited or not
         if (!visited[node]) {
@@ -30,7 +30,7 @@ const dfs = (current_room_id, target_room_id) => {
             }
 
             Object.values(map[node]).forEach(neighbor => {
-                copy_path = [...path];
+                var copy_path = [...path];
                 copy_path.push(Number(neighbor));
                 stack.push(copy_path);
             });

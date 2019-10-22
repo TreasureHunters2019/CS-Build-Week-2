@@ -1,6 +1,7 @@
-const treasureHunter = require("./axios");
+require("dotenv").config();
+const axios = require("axios");
 const move = require("./graph");
-var fs = require("fs");
+// var fs = require("fs");
 
 // Create empty arrays and list to hold map and paths
 let traversalPath = [];
@@ -29,10 +30,19 @@ const reverse = direction => {
 
     return result;
 };
-
-// Initialize: this will just return the first room (room_id = 0)
-treasureHunter
-    .get("init/")
+const api_key = process.env.REACT_APP_APIKEY;
+const options = {
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${api_key}`
+    }
+};
+//Initialize: this will just return the first room (room_id = 0)
+axios
+    .get(
+        "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
+        options
+    )
     .then(res => {
         console.log("init: ", res.data);
 
@@ -51,7 +61,7 @@ treasureHunter
 // This function will hold all of the actual logic for moving through
 // the map, picking things up, selling things, etc. and should continue
 // until map.length==500
-adventure = () => {
+const adventure = () => {
     let room_ID = currentRoom.room_id;
     let unexplored_rooms = [];
 
@@ -96,8 +106,8 @@ adventure = () => {
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
     const takeTreasure = treasure => {
         setTimeout(() => {
-            treasureHunter
-                .post("take", { name: treasure })
+            axios
+                .post("take/", { name: treasure }, options)
                 .then(res => {
                     console.log(res.data);
                     alert("You've found treasure");
@@ -118,8 +128,8 @@ adventure = () => {
         }
 
         setTimeout(() => {
-            treasureHunter
-                .post("sell", { name: treasure, confirm: "yes" })
+            axios
+                .post("sell/", { name: treasure, confirm: "yes" }, options)
                 .then(res => {
                     sellTreasure(treasure.pop(0));
                 })
@@ -132,11 +142,11 @@ adventure = () => {
     // Check if the room has items in it, and if so, pick them up
     if (currentRoom.items.length) {
         setTimeout(() => {
-            treasureHunter
-                .post("status")
+            axios
+                .post("status/", options)
                 .then(res => {
                     console.log("Current inventory:", res.data.inventory);
-                    treasure = [...currentRoom.items];
+                    var treasure = [...currentRoom.items];
                     console.log(
                         "The item(s) you're picking up are: ",
                         treasure
@@ -186,8 +196,8 @@ TODO: Add in the logic that picks up treasure, etc.
     Change cool down to current room cool down
     */
         setTimeout(() => {
-            treasureHunter
-                .post("move", { direction: move_forward })
+            axios
+                .post("move", { direction: move_forward }, options)
                 .then(res => {
                     console.log("Moved forward");
                     // Save room_id to previous_room_id and set new currentRoom
@@ -234,8 +244,8 @@ TODO: Add in the logic that picks up treasure, etc.
 
         // Use setTimeout and POST('move') to move to the reversed room
         setTimeout(() => {
-            treasureHunter
-                .post("move", { direction: reversed_path })
+            axios
+                .post("move", { direction: reversed_path }, options)
                 .then(res => {
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
