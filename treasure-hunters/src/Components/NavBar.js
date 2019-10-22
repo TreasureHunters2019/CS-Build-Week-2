@@ -2,7 +2,7 @@ import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Link } from "@material-ui/core";
-
+import { adventure } from '../Helpers/Helpers'
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1
@@ -24,9 +24,10 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const NavBar = props => {
+const NavBar = ({currentRoom}) => {
     const classes = useStyles();
-
+    console.log('this is the current room', currentRoom);
+    
     return (
         <div className={classes.root}>
             <AppBar className={ classes.appBar} position="static" title="Lambda Treasure Hunt 💰">
@@ -55,7 +56,7 @@ const NavBar = props => {
                     >
                         Home
                     </Link>
-                    <button>
+                    <button onClick={() => {adventure(currentRoom)}}>
                         Get Map
                     </button>
                 </Toolbar>

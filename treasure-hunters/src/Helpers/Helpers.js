@@ -1,5 +1,3 @@
-const move = require("../treasure-hunters/src/graph");
-var fs = require("fs");
 require("dotenv").config();
 const axios = require("axios");
 const move = require("./graph");
@@ -13,7 +11,7 @@ let graph = {};
 let name_changed = false;
 
 // Create a variable for the current room
-let currentRoom = null;
+// let currentRoom = null;
 let coolDown = 16; // To account for the 15 second cool down period
 
 // Create a helper function to reverse the N, S, E, W direction
@@ -40,30 +38,30 @@ const options = {
     }
 };
 //Initialize: this will just return the first room (room_id = 0)
-axios
-    .get(
-        "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
-        options
-    )
-    .then(res => {
-        console.log("init: ", res.data);
+// axios
+//     .get(
+//         "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
+//         options
+//     )
+//     .then(res => {
+//         console.log("init: ", res.data);
 
-        // Set the current_room to res.data
-        currentRoom = res.data;
+//         // Set the current_room to res.data
+//         currentRoom = res.data;
 
-        // Print out the current room ID and the exits
-        console.log("Room ID: ", currentRoom.room_id);
-        console.log("Room exits: ", currentRoom.exits);
+//         // Print out the current room ID and the exits
+//         console.log("Room ID: ", currentRoom.room_id);
+//         console.log("Room exits: ", currentRoom.exits);
 
-        // Set the cool down period to whatever it is in the current room
-        coolDown = currentRoom.cooldown;
-    })
-    .catch(err => console.error(err));
+//         // Set the cool down period to whatever it is in the current room
+//         coolDown = currentRoom.cooldown;
+//     })
+//     .catch(err => console.error(err));
 
 // This function will hold all of the actual logic for moving through
 // the map, picking things up, selling things, etc. and should continue
 // until map.length==500
-const adventure = () => {
+export const adventure = ({currentRoom}) => {
     let room_ID = currentRoom.room_id;
     let unexplored_rooms = [];
 
