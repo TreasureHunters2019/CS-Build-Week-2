@@ -5,6 +5,7 @@ import NavBar from "./Components/NavBar";
 import Commands from "./Components/MoveCommands";
 import Info from "./Components/Info";
 import Map from "./Components/Map";
+
 import { CssBaseline } from "@material-ui/core";
 import "./App.css";
 
@@ -36,7 +37,10 @@ const App = () => {
   }
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
-  
+  const [currentRoom, setCurrentRoom] = useState()
+  const [graph, setGraph] = useState({})
+  const [lastRoom, setLastRoom] = useState(null)
+
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
   const options = {
@@ -66,6 +70,19 @@ const App = () => {
       let players = res.data.players;
       
       setRoom ({
+        room_id: room_id,
+        exits: exits,
+        description: description,
+        items: items,
+        messages: messages,
+        terrain: terrain,
+        title: title,
+        elevation: elevation,
+        coordinates: coordinates,
+        cooldown: coolDown,
+        players: players
+      })
+      setCurrentRoom({
         room_id: room_id,
         exits: exits,
         description: description,
