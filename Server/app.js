@@ -1,5 +1,5 @@
-const treasureHunter = require("./axios");
-const move = require("./graph");
+const treasureHunter = require("../treasure-hunters/src/axios");
+const move = require("../treasure-hunters/src/graph");
 var fs = require("fs");
 
 // Create empty arrays and list to hold map and paths

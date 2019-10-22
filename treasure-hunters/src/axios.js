@@ -1,7 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 
-const api_key = process_env.REACT_APP_APIKEY
+const api_key = process.env.REACT_APP_APIKEY
 module.exports = axios.create({
     baseURL: "https://lambda-treasure-hunt.herokuapp.com/api/adv/",
     headers: {

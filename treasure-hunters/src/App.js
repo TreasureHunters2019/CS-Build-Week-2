@@ -1,4 +1,4 @@
-import React, { useState, useEffect }from 'react';
+import React, { useState, useEffect } from 'react';
 import { withRouter } from "react-router";
 import axios from "axios";
 import NavBar from "./Components/NavBar";
@@ -10,7 +10,279 @@ import "./App.css";
 
 require("dotenv").config();
 
+const treasureHunter = require("./axios");
+const move = require("./graph");
+var fs = require("fs");
+
 const App = () => {
+  // Create empty arrays and list to hold map and paths
+  let traversalPath = [];
+  let reversePath = [];
+  let map = {};
+  let graph = {};
+  let name_changed = false;
+
+  // Create a variable for the current room
+  let currentRoom = null;
+  let coolDown = 16; // To account for the 15 second cool down period
+
+  // Create a helper function to reverse the N, S, E, W direction
+  const reverse = direction => {
+    let result = "";
+
+    if (direction == "n") {
+      result = "s";
+    } else if (direction == "s") {
+      result = "n";
+    } else if (direction == "w") {
+      result = "e";
+    } else if (direction == "e") {
+      result = "w";
+    }
+
+    return result;
+  };
+
+  // Initialize: this will just return the first room (room_id = 0)
+  treasureHunter
+    .get("init/")
+    .then(res => {
+      console.log("init: ", res.data);
+
+      // Set the current_room to res.data
+      currentRoom = res.data;
+
+      // Print out the current room ID and the exits
+      console.log("Room ID: ", currentRoom.room_id);
+      console.log("Room exits: ", currentRoom.exits);
+
+      // Set the cool down period to whatever it is in the current room
+      coolDown = currentRoom.cooldown;
+    })
+    .catch(err => console.error(err));
+
+  // This function will hold all of the actual logic for moving through
+  // the map, picking things up, selling things, etc. and should continue
+  // until map.length==500
+  const adventure = () => {
+    let room_ID = currentRoom.room_id;
+    let unexplored_rooms = [];
+
+    console.log("Currently in room:", currentRoom.room_id);
+    console.log("with:", currentRoom.items);
+
+    //   Check if the current room is in the map object, and if not, add it
+    if (!map[room_ID]) {
+      map[room_ID] = {};
+    }
+
+    console.log("The map length is now: ", Object.keys(map).length);
+
+    //   Add unexplored exits to the map with a X
+    currentRoom.exits.forEach(exit => {
+      if (map[room_ID][exit.toString()] == undefined) {
+        map[room_ID][exit.toString()] = "?";
+      }
+    });
+
+    graph[room_ID] = currentRoom;
+
+    //   Create array of unexplored rooms
+    for (var key in map[room_ID]) {
+      if (map[room_ID][key] == "?") {
+        unexplored_rooms.push(key);
+      }
+    }
+
+    console.log("The remaining unexplored rooms are:\n", unexplored_rooms);
+
+    // Create a helper function to move between rooms and pause for cool down
+    // This uses the move() function from graph.js to move between the current and target room
+    const toRoom = (current_room_id, target_room_id) => {
+      const directions = move(current_room_id, target_room_id);
+      console.log(
+        "The directions to get to where you're going are: ",
+        directions
+      );
+    };
+
+    // Helper functions for picking up treasure, selling treasure, and checking inventory/status
+    const takeTreasure = treasure => {
+      setTimeout(() => {
+        treasureHunter
+          .post("take", { name: treasure })
+          .then(res => {
+            console.log(res.data);
+            alert("You've found treasure");
+            coolDown = res.data.cooldown;
+          })
+          .catch(err =>
+            console.log("Error taking treasure: ", err, currentRoom)
+          );
+      }, coolDown * 1000);
+    };
+
+    const sellTreasure = treasure => {
+      if (!treasure.length) {
+        if (!name_changed) {
+          toRoom(1, 467);
+        }
+        return;
+      }
+
+      setTimeout(() => {
+        treasureHunter
+          .post("sell", { name: treasure, confirm: "yes" })
+          .then(res => {
+            sellTreasure(treasure.pop(0));
+          })
+          .catch(err =>
+            console.log("Error selling inventory: ", err, currentRoom)
+          );
+      }, coolDown * 1000);
+    };
+
+    // Check if the room has items in it, and if so, pick them up
+    // if (currentRoom.items.length) {
+    //   setTimeout(() => {
+    //     treasureHunter
+    //       .post("status")
+    //       .then(res => {
+    //         console.log("Current inventory:", res.data.inventory);
+    //         treasure = [...currentRoom.items];
+    //         console.log(
+    //           "The item(s) you're picking up are: ",
+    //           treasure
+    //         );
+    //         takeTreasure(treasure[0]);
+    //       })
+    //       .catch(err =>
+    //         console.log(
+    //           "Error picking up treasure while on the map: ",
+    //           err,
+    //           currentRoom
+    //         )
+    //       );
+    //   }, coolDown * 1000);
+    // }
+
+    /*
+  The following conditional will handle:
+  1. Free movement: there is nothing stopping the explorer from moving to another room
+  2. Dead end: the explorer can reverse his/her path until a room has an unexplored exit
+  3. Dead end at start: the whole map should have been traversed
+  Based on the above, the if statements should have these conditions:
+  1. unexplored_rooms > 0
+  2. unexplored_rooms == 0 && reversePath.length
+  3. unexplored_rooms == 0 && reversePath.length == 0
+  TODO: Add in the logic that picks up treasure, etc.
+  */
+
+    if (unexplored_rooms.length > 0) {
+      console.log("Free to explore");
+      // Pick a room from the unexplored_rooms array
+      let move_forward = unexplored_rooms[0];
+      unexplored_rooms = [];
+
+      // Add the next move to the traversalPath array
+      traversalPath.push(move_forward);
+
+      // Add the opposite direction move to the reversePath array
+      let reverse_move = reverse(move_forward);
+      reversePath.push(reverse_move);
+
+      /*
+  Use setTimeout and POST('move') to move to the next room
+  Add the new room_id to the map
+  Add the exits to the map
+  Add the opposite direction move to the map
+  Change cool down to current room cool down
+  */
+      setTimeout(() => {
+        treasureHunter
+          .post("move", { direction: move_forward })
+          .then(res => {
+            console.log("Moved forward");
+            // Save room_id to previous_room_id and set new currentRoom
+            let previous_room_id = room_ID;
+            currentRoom = res.data;
+            // Update the map with the path forward from the previous room
+            map[previous_room_id][move_forward] = currentRoom.room_id;
+            // Set a new room_id
+            let new_room_id = currentRoom.room_id;
+            // Check if the new_room_id is in the map object, and if not, add it
+            if (!map[new_room_id]) {
+              map[new_room_id] = {};
+            }
+            // Add unexplored exits for the new room to the map with a X
+            currentRoom.exits.forEach(exit => {
+              if (map[new_room_id][exit.toString()] == undefined) {
+                map[new_room_id][exit.toString()] = "?";
+              }
+            });
+            // Update new rooms reverse_move room with the previous_room_id
+            map[new_room_id][reverse_move] = previous_room_id;
+            // console.log("This is the map:\n", map);
+            graph[new_room_id] = currentRoom;
+            // Set the cooldown to the current room's cool down length
+            coolDown = res.data.cooldown;
+
+            if (Object.keys(map).length !== 500) {
+              setTimeout(() => {
+                adventure();
+              }, coolDown * 1000);
+            }
+          })
+          .catch(err => console.log("Error moving forward: ", err));
+      }, coolDown * 2700);
+
+      // Check if map.length == 500 and if not, loop through adventure() again
+    } else if (unexplored_rooms.length == 0 && reversePath.length) {
+      console.log("Dead end");
+      // Get last move from reversePath array
+      let reversed_path = reversePath.pop();
+
+      // Add the reversed move to the traversalPath
+      traversalPath.push(reversed_path);
+
+      // Use setTimeout and POST('move') to move to the reversed room
+      setTimeout(() => {
+        treasureHunter
+          .post("move", { direction: reversed_path })
+          .then(res => {
+            currentRoom = res.data;
+            coolDown = res.data.cooldown;
+
+            if (Object.keys(map).length !== 500) {
+              setTimeout(() => {
+                adventure();
+              }, coolDown * 1000);
+            }
+          })
+          .catch(err =>
+            console.log(
+              "There was a problem reversing out of a dead end: ",
+              err,
+              currentRoom
+            )
+          );
+      }, coolDown * 1000);
+    } else if (unexplored_rooms.length == 0 && reversePath.length == 0) {
+      console.log(
+        "It looks like you've explored the whole map...congratulations! \nJust to be sure, the current map length is: ",
+        Object.keys(map).length
+      );
+
+      return map;
+    }
+  };
+  // Run the adventure function (while will continue till map.length==500)
+  // while waiting the correct amount of time between each move
+  setTimeout(() => {
+    adventure();
+  }, coolDown * 1000);
+
+
   const baseURL = "https://lambda-treasure-hunt.herokuapp.com/api/"
   const init_room = {
     room_id: 0,
@@ -36,7 +308,7 @@ const App = () => {
   }
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
-  
+
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
   const options = {
@@ -46,81 +318,81 @@ const App = () => {
     }
   }
   // console.log(options)
-  
-// to get the init
+
+  // to get the init
   useEffect(() => {
     axios
-    .get(baseURL + "adv/init/", options)
-    .then(res => {
-      console.log('this is the init data', res.data);
-      let room_id = res.data.room_id;
-      let exits = res.data.exits;
-      let description = res.data.description;
-      let items = res.data.items;
-      let messages = res.data.messages;
-      let terrain = res.data.terrain;
-      let title = res.data.title;
-      let elevation = res.data.elevation;
-      let coordinates = res.data.coordinates;
-      let coolDown = res.data.cooldown;
-      let players = res.data.players;
-      
-      setRoom ({
-        room_id: room_id,
-        exits: exits,
-        description: description,
-        items: items,
-        messages: messages,
-        terrain: terrain,
-        title: title,
-        elevation: elevation,
-        coordinates: coordinates,
-        cooldown: coolDown,
-        players: players
+      .get(baseURL + "adv/init/", options)
+      .then(res => {
+        console.log('this is the init data', res.data);
+        let room_id = res.data.room_id;
+        let exits = res.data.exits;
+        let description = res.data.description;
+        let items = res.data.items;
+        let messages = res.data.messages;
+        let terrain = res.data.terrain;
+        let title = res.data.title;
+        let elevation = res.data.elevation;
+        let coordinates = res.data.coordinates;
+        let coolDown = res.data.cooldown;
+        let players = res.data.players;
+
+        setRoom({
+          room_id: room_id,
+          exits: exits,
+          description: description,
+          items: items,
+          messages: messages,
+          terrain: terrain,
+          title: title,
+          elevation: elevation,
+          coordinates: coordinates,
+          cooldown: coolDown,
+          players: players
+        })
       })
-    })
-    .catch(
-      err => console.log("Error getting initial room data", err)
+      .catch(
+        err => console.log("Error getting initial room data", err)
       );
 
     setTimeout(() => {
       axios
-      .post(baseURL + 'adv/status/', data, options)
-      .then(res => {
-        console.log('this the the status from init', res.data);
-        let playerName = res.data.name;
-        let speed = res.data.speed;
-        let strength = res.data.strength;
-        let inventory = res.data.inventory;
-        let encumbrance = res.data.encumbrance;
-        let messages = res.data.messages;
-        let gold = res.data.gold;
-        
-        setPlayer({
-          name:playerName,
-          speed: speed,
-          strength: strength,
-          inventory: inventory,
-          encumbrance: encumbrance,
-          messages: messages,
-          gold: gold
+        .post(baseURL + 'adv/status/', data, options)
+        .then(res => {
+          console.log('this the the status from init', res.data);
+          let playerName = res.data.name;
+          let speed = res.data.speed;
+          let strength = res.data.strength;
+          let inventory = res.data.inventory;
+          let encumbrance = res.data.encumbrance;
+          let messages = res.data.messages;
+          let gold = res.data.gold;
+
+          setPlayer({
+            name: playerName,
+            speed: speed,
+            strength: strength,
+            inventory: inventory,
+            encumbrance: encumbrance,
+            messages: messages,
+            gold: gold
+          })
         })
-      })
-      .catch(
-        err => console.log("Error getting initial status", err)
-      )
+        .catch(
+          err => console.log("Error getting initial status", err)
+        )
     }, room.cooldown * 1000);
   }, [])
 
-//Get Status
+  //Get Status
   const getStatus = () => {
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${process.env.API_KEY}`
-        }
-      };
-      axios
+    const options = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${process.env.API_KEY}`
+      }
+    };
+    axios
       .get(baseURL + "adv/init/", options)
       .then(res => {
         console.log("this is the get status data", res.data);
@@ -135,53 +407,53 @@ const App = () => {
         let coordinates = res.data.coordinates;
         let coolDown = res.data.cooldown;
         let players = res.data.players;
-        
+
         setRoom({
-            room_id: room_id,
-            exits: exits,
-            description: description,
-            items: items,
-            messages: messages,
-            terrain: terrain,
-            title: title,
-            elevation: elevation,
-            coordinates: coordinates,
-            cooldown: coolDown,
-            players: players
-          })
+          room_id: room_id,
+          exits: exits,
+          description: description,
+          items: items,
+          messages: messages,
+          terrain: terrain,
+          title: title,
+          elevation: elevation,
+          coordinates: coordinates,
+          cooldown: coolDown,
+          players: players
+        })
       })
       .catch(err => console.log("Error getting initial Room data with status", err));
 
-      setTimeout(() => {
-        axios
-          .post(
-            baseURL + "adv/status/",
-            options
-          )
-          .then(res => {
-            let playerName = res.data.name;
-            let speed = res.data.speed;
-            let strength = res.data.strength;
-            let inventory = res.data.inventory;
-            let encumbrance = res.data.encumbrance;
-            let messages = res.data.messages;
-            let gold = res.data.gold;
-            
-            setPlayer({
-              name: playerName,
-              speed: speed,
-              strength: strength,
-              inventory: inventory,
-              encumbrance: encumbrance,
-              messages: messages,
-              gold: gold
-            })
-      })
-      .catch(err => console.log("Error in the status function", err))
+    setTimeout(() => {
+      axios
+        .post(
+          baseURL + "adv/status/",
+          options
+        )
+        .then(res => {
+          let playerName = res.data.name;
+          let speed = res.data.speed;
+          let strength = res.data.strength;
+          let inventory = res.data.inventory;
+          let encumbrance = res.data.encumbrance;
+          let messages = res.data.messages;
+          let gold = res.data.gold;
+
+          setPlayer({
+            name: playerName,
+            speed: speed,
+            strength: strength,
+            inventory: inventory,
+            encumbrance: encumbrance,
+            messages: messages,
+            gold: gold
+          })
+        })
+        .catch(err => console.log("Error in the status function", err))
     }, room.cooldown * 1000);
   }
 
-//for the move
+  //for the move
   const move = dir => {
     const options = {
       headers: {
@@ -211,24 +483,24 @@ const App = () => {
           let elevation = res.data.elevation;
           let coordinates = res.data.coordinates;
           let coolDown = res.data.cooldown;
-          
-            setRoom ({
-              room_id: room_id,
-              exits: exits,
-              description: description,
-              items: items,
-              messages: messages,
-              terrain: terrain,
-              title: title,
-              elevation: elevation,
-              coordinates: coordinates,
-              cooldown: coolDown
-            })
+
+          setRoom({
+            room_id: room_id,
+            exits: exits,
+            description: description,
+            items: items,
+            messages: messages,
+            terrain: terrain,
+            title: title,
+            elevation: elevation,
+            coordinates: coordinates,
+            cooldown: coolDown
           })
+        })
         .catch(err => {
           console.log("Error while moving", err);
         });
-      },room.cooldown*500);
+    }, room.cooldown * 500);
   };
 
   return (
@@ -236,7 +508,8 @@ const App = () => {
       <CssBaseline />
       <NavBar />
       <Info player={player} room={room} />
-      <Commands move={move} getStatus={getStatus} /> 
+      <button onClick={adventure}> Traverse </button>
+      {/* <Commands move={move} getStatus={getStatus} />  */}
       <Map currentRoom={room.room_id} />
     </div>
   );
