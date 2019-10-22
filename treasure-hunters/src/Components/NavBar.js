@@ -55,6 +55,9 @@ const NavBar = props => {
                     >
                         Home
                     </Link>
+                    <button>
+                        Get Map
+                    </button>
                 </Toolbar>
             </AppBar>
         </div>
