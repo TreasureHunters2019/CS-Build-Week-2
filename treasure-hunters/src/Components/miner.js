@@ -19,4 +19,5 @@ function get_proof(last_proof) {
     return hash;
 }
 
-get_proof(5712785);
+// add last proof and run it 
+get_proof();
