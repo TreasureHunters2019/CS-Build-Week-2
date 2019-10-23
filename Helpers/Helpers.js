@@ -153,7 +153,7 @@ adventure = () => {
     const targetRoom = (target_room_id) => {
         // **** can we use toRoom() to get a list of string directions? 
         // **** if yes, then we can use a forEach loop and feed into the move function
-        // toRoom(currentRoom.room_id, room_id)    
+        // toRoom(currentRoom.room_id, target_room_id)    
                                       
         // get path to target
         path_to_target = dfs(currentRoom.room_id, target_room_id)
@@ -166,12 +166,11 @@ adventure = () => {
             // for each room_id convert to a string direction 'n' 's' 'e' 'w' for the POST call
             // **** working here currently ****
             string_direction = null;
-            map[room_id].forEach( direction => {
+            map[currentRoom.room_id].forEach( direction => {
                 if (direction === map[NEXT_ROOM_ID_IN_PATH]) {
                     string_direction = direction
                 }
             })
-
             // move function
             setTimeout(() => {
                 axios
@@ -181,12 +180,9 @@ adventure = () => {
                     })
                     .catch(err => console.log("Error while attempting to traverse: ", err.message));
             }, coolDown * 1000);
-
         });
-
         // return target room info
         console.log(currentRoom);
-
         // return current inventory
         axios
         .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
@@ -196,7 +192,6 @@ adventure = () => {
         .catch(err => {
             console.log(err.message)
         });
-        
     };
 
     // Check if the room has items in it, and if so, pick them up
