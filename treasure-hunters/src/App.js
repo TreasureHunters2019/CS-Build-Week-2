@@ -5,12 +5,13 @@ import NavBar from "./Components/NavBar";
 import Commands from "./Components/MoveCommands";
 import Info from "./Components/Info";
 import Map from "./Components/Map";
+
 import { CssBaseline } from "@material-ui/core";
 import "./App.css";
 
 require("dotenv").config();
 
-const App = () => {
+export const App = () => {
   const baseURL = "https://lambda-treasure-hunt.herokuapp.com/api/"
   const init_room = {
     room_id: 0,
@@ -36,21 +37,22 @@ const App = () => {
   }
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
+  const [currentRoom, setCurrentRoom] = useState()
+  const [graph, setGraph] = useState({})
+  const [lastRoom, setLastRoom] = useState(null)
   
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
-  const options = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Token ${api_key}`
-    }
-  }
-  // console.log(options)
-  
+  axios.interceptors.request.use(
+    options => {options.headers.authorization = `Token ${api_key}`
+    return options},
+    error => {return Promise.reject(error)}
+    )
+    
 // to get the init
   useEffect(() => {
     axios
-    .get(baseURL + "adv/init/", options)
+    .get(baseURL + "adv/init/")
     .then(res => {
       console.log('this is the init data', res.data);
       let room_id = res.data.room_id;
@@ -78,6 +80,19 @@ const App = () => {
         cooldown: coolDown,
         players: players
       })
+      setCurrentRoom({
+        room_id: room_id,
+        exits: exits,
+        description: description,
+        items: items,
+        messages: messages,
+        terrain: terrain,
+        title: title,
+        elevation: elevation,
+        coordinates: coordinates,
+        cooldown: coolDown,
+        players: players
+      })
     })
     .catch(
       err => console.log("Error getting initial room data", err)
@@ -85,7 +100,7 @@ const App = () => {
 
     setTimeout(() => {
       axios
-      .post(baseURL + 'adv/status/', data, options)
+      .post(baseURL + 'adv/status/', data)
       .then(res => {
         console.log('this the the status from init', res.data);
         let playerName = res.data.name;
@@ -97,7 +112,7 @@ const App = () => {
         let gold = res.data.gold;
         
         setPlayer({
-          name:playerName,
+          name: playerName,
           speed: speed,
           strength: strength,
           inventory: inventory,
@@ -114,14 +129,8 @@ const App = () => {
 
 //Get Status
   const getStatus = () => {
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${process.env.API_KEY}`
-        }
-      };
       axios
-      .get(baseURL + "adv/init/", options)
+      .post(baseURL + "adv/init/")
       .then(res => {
         console.log("this is the get status data", res.data);
         let room_id = res.data.room_id;
@@ -155,8 +164,7 @@ const App = () => {
       setTimeout(() => {
         axios
           .post(
-            baseURL + "adv/status/",
-            options
+            baseURL + "adv/status/"
           )
           .then(res => {
             let playerName = res.data.name;
@@ -183,12 +191,6 @@ const App = () => {
 
 //for the move
   const move = dir => {
-    const options = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${api_key}`
-      }
-    };
     const body = JSON.stringify({
       direction: dir
     });
@@ -197,8 +199,7 @@ const App = () => {
       axios
         .post(
           baseURL + "adv/move/",
-          body,
-          options
+          body
         )
         .then(res => {
           let room_id = res.data.room_id;
@@ -234,7 +235,7 @@ const App = () => {
   return (
     <div className="App">
       <CssBaseline />
-      <NavBar />
+      <NavBar currentRoom={currentRoom}/>
       <Info player={player} room={room} />
       <Commands move={move} getStatus={getStatus} /> 
       <Map currentRoom={room.room_id} />

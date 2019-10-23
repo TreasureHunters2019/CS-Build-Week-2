@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const Info = props => {
     return (
@@ -63,7 +63,7 @@ const Info = props => {
                 </div>
                 <div>
                     <strong>Players:</strong>
-                    {props.room.players == 0 ? (
+                    {props.room.players === 0 ? (
                         <p>There are no other people here.</p>
                     ) : (
                         <ul>

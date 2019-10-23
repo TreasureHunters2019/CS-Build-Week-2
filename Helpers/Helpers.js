@@ -1,4 +1,5 @@
-const treasureHunter = require("./axios");
+require("dotenv").config();
+const axios = require("axios");
 const move = require("./graph");
 var fs = require("fs");
 
@@ -29,10 +30,19 @@ const reverse = direction => {
 
     return result;
 };
-
-// Initialize: this will just return the first room (room_id = 0)
-treasureHunter
-    .get("init/")
+const api_key = process.env.API_KEY;
+const options = {
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${api_key}`
+    }
+};
+//Initialize: this will just return the first room (room_id = 0)
+axios
+    .get(
+        "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
+        options
+    )
     .then(res => {
         console.log("init: ", res.data);
 
@@ -94,10 +104,13 @@ adventure = () => {
     };
 
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
-    const takeTreasure = treasure => {
+    const takeTreasure = (treasure) => {
+        const takeBody = {
+            "name": treasure
+        } 
         setTimeout(() => {
-            treasureHunter
-                .post("take", { name: treasure })
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
                 .then(res => {
                     console.log(res.data);
                     alert("You've found treasure");
@@ -109,7 +122,7 @@ adventure = () => {
         }, coolDown * 1000);
     };
 
-    const sellTreasure = treasure => {
+    const sellTreasure = () => {
         if (!treasure.length) {
             if (!name_changed) {
                 toRoom(1, 467);
@@ -118,8 +131,12 @@ adventure = () => {
         }
 
         setTimeout(() => {
-            treasureHunter
-                .post("sell", { name: treasure, confirm: "yes" })
+            const sellBody = {
+                "name": "treasure",
+                "confirm": "yes"
+            }
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/", sellBody, options)
                 .then(res => {
                     sellTreasure(treasure.pop(0));
                 })
@@ -132,11 +149,11 @@ adventure = () => {
     // Check if the room has items in it, and if so, pick them up
     if (currentRoom.items.length) {
         setTimeout(() => {
-            treasureHunter
-                .post("status")
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
                 .then(res => {
                     console.log("Current inventory:", res.data.inventory);
-                    treasure = [...currentRoom.items];
+                    var treasure = [...currentRoom.items];
                     console.log(
                         "The item(s) you're picking up are: ",
                         treasure
@@ -186,8 +203,8 @@ TODO: Add in the logic that picks up treasure, etc.
     Change cool down to current room cool down
     */
         setTimeout(() => {
-            treasureHunter
-                .post("move", { direction: move_forward })
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: move_forward }, options)
                 .then(res => {
                     console.log("Moved forward");
                     // Save room_id to previous_room_id and set new currentRoom
@@ -221,7 +238,7 @@ TODO: Add in the logic that picks up treasure, etc.
                     }
                 })
                 .catch(err => console.log("Error moving forward: ", err));
-        }, coolDown * 2700);
+        }, coolDown * 1000);
 
         // Check if map.length == 500 and if not, loop through adventure() again
     } else if (unexplored_rooms.length == 0 && reversePath.length) {
@@ -234,8 +251,8 @@ TODO: Add in the logic that picks up treasure, etc.
 
         // Use setTimeout and POST('move') to move to the reversed room
         setTimeout(() => {
-            treasureHunter
-                .post("move", { direction: reversed_path })
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: reversed_path }, options)
                 .then(res => {
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
@@ -269,3 +286,4 @@ TODO: Add in the logic that picks up treasure, etc.
 setTimeout(() => {
     adventure();
 }, coolDown * 1000);
+
