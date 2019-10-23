@@ -250,7 +250,7 @@ TODO: Add in the logic that picks up treasure, etc.
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
 
-                    if (Object.keys(map).length !== 500) {
+                    if (Object.keys(map).length >= 500) {
                         setTimeout(() => {
                             adventure();
                         }, coolDown * 1000);
