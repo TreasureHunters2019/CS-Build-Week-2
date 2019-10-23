@@ -1,9 +1,10 @@
 const Hashes = require("jshashes");
 const utf8 = require("utf8");
 
-function get_proof(last_proof, proof, difficulty) {
-    const proof = null;
-    const last_proof = null;
+function get_proof(last_proof) {
+    let proof = Math.floor(Math.random() * 1000000);
+    // const last_proof = 7233826;
+    // const difficulty = 6;
     let str = `${last_proof}${proof}`;
     let hash = new Hashes.SHA256().hex(str);
 
@@ -18,4 +19,4 @@ function get_proof(last_proof, proof, difficulty) {
     return hash;
 }
 
-get_proof();
+get_proof(5712785);

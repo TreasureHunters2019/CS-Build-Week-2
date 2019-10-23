@@ -39,14 +39,3 @@ const toRoom = (current_room_id, target_room_id) => {
 };
 
 toRoom(55, 423)
-
-// [
-//     'n',
-//     'w', 'n', 'w', 'n',
-//     'n', 'w'
-//   ]
-[
-
-   234, 252, 284, 303,
-   361, 408, 423
- ]
