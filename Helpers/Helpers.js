@@ -1,7 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
 const move = require("./graph");
-const dfs = require("/graph");
 var fs = require("fs");
 
 // Create empty arrays and list to hold map and paths
@@ -99,7 +98,7 @@ adventure = () => {
 
     // Create a helper function to move between rooms and pause for cool down
     // This uses the move() function from graph.js to move between the current and target room
-    export const toRoom = (current_room_id, target_room_id) => {
+    const toRoom = (current_room_id, target_room_id) => {
         const directions = move(current_room_id, target_room_id);
         console.log(
             "The directions to get to where you're going are: ",
@@ -117,7 +116,7 @@ adventure = () => {
                 .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
                 .then(res => {
                     console.log(res.data);
-                    alert("You've found treasure");
+                    console.log("You've found treasure");
                     coolDown = res.data.cooldown;
                 })
                 .catch(err =>
@@ -150,61 +149,29 @@ adventure = () => {
         }, coolDown * 1000);
     };
 
-    const targetRoom = (target_room_id) => {
-           
-        // get path to target
-        path_to_target = toRoom(currentRoom.room_id, target_room_id)     
-
-        // traverse from CURRENT ROOM to TARGET ROOM
-        // for each ROOM ID in path_to_target 
-        // move from current room to ROOM ID 
-        path_to_target.forEach( direction => {
-            // move function
-            setTimeout(() => {
-                axios
-                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
-                    .then(res => {
-                        console.log(res.data);
-                    })
-                    .catch(err => console.log("Error while attempting to traverse: ", err.message));
-            }, coolDown * 1000);
-        });
-        // return target room info
-        console.log(currentRoom);
-        // return current inventory
-        axios
-        .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
-        .then(res => {
-            console.log("Current inventory:", res.data.inventory);
-        })
-        .catch(err => {
-            console.log(err.message)
-        });
-    };
-
     // Check if the room has items in it, and if so, pick them up
-    //     if (currentRoom.items.length) {
-    //     setTimeout(() => {
-    //         var treasure = [...currentRoom.items];
-    //         console.log(
-    //             "The item(s) you're picking up are: ",
-    //             treasure
-    //         );
-    //         takeTreasure(treasure[0]);
-    //         axios
-    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
-    //             .then(res => {
-    //                 console.log("Current inventory:", res.data.inventory);
-    //             })
-    //             .catch(err =>
-    //                 console.log(
-    //                     // "Error picking up treasure while on the map: ",
-    //                     err.message,
-    //                     // currentRoom
-    //                 )
-    //             );
-    //     }, coolDown * 1000);
-    // }
+        if (currentRoom.items.length) {
+        setTimeout(() => {
+            var treasure = [...currentRoom.items];
+            console.log(
+                "The item(s) you're picking up are: ",
+                treasure
+            );
+            takeTreasure(treasure[0]);
+            axios
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+                .then(res => {
+                    console.log("Current inventory:", res.data.inventory);
+                })
+                .catch(err =>
+                    console.log(
+                        // "Error picking up treasure while on the map: ",
+                        err.message,
+                        // currentRoom
+                    )
+                );
+        }, coolDown * 1000);
+    }
 
     // PREVIOUS VERSION
     // if (currentRoom.items.length) {
@@ -337,7 +304,7 @@ TODO: Add in the logic that picks up treasure, etc.
             Object.keys(map).length
         );
 
-        return map;
+        console.log(map, graph);
     }
 };
 

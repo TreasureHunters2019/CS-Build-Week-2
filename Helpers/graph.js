@@ -51,5 +51,7 @@ const move = (current_room_id, target_room_id) => {
     return directions;
 };
 
+move(155, 1)
+
 module.exports = move;
 module.exports = dfs;
