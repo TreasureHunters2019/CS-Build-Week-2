@@ -1,6 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const move = require("./graph");
+const map = require("./map");
 
 const api_key = process.env.API_KEY;
 const options = {
@@ -39,39 +40,35 @@ const toRoom = (current_room_id, target_room_id) => {
         "The directions to get to where you're going are: ",
         directions
     );
+    return directions
 };
 
+toRoom(467, 55)
 
 const targetRoom = (target_room_id) => {
            
     // get path to target
-    path_to_target = toRoom(currentRoom.room_id, target_room_id)     
+    path_to_target = toRoom(467, target_room_id)    
+    console.log('PATH TO TARGET', path_to_target)
 
-    // traverse from CURRENT ROOM to TARGET ROOM
     // for each ROOM ID in path_to_target 
     // move from current room to ROOM ID 
     path_to_target.forEach( direction => {
-        // move function
         setTimeout(() => {
-            axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
-                .then(res => {
-                    console.log(res.data);
-                })
-                .catch(err => console.log("Error while attempting to traverse: ", err.message));
-        }, coolDown * 1000);
+        // move function
+            setTimeout(() => {
+                axios
+                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
+                    .then(res => {
+                        console.log(res.data);
+                        // path_to_target.remove(path_to_target[0])
+                    })
+                    .catch(err => console.log("Error while attempting to traverse: ", err.message));
+            }, 16000);
+        }, 16000)
+
     });
-    // return target room info
-    console.log(currentRoom);
-    // return current inventory
-    axios
-    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
-    .then(res => {
-        console.log("Current inventory:", res.data.inventory);
-    })
-    .catch(err => {
-        console.log(err.message)
-    });
+
 };
 
-targetRoom(1)
+targetRoom(55)

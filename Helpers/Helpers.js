@@ -9,15 +9,12 @@ let reversePath = [];
 let map = {};
 let graph = {};
 let name_changed = false;
-
 // Create a variable for the current room
 let currentRoom = null;
 let coolDown = 16; // To account for the 15 second cool down period
-
 // Create a helper function to reverse the N, S, E, W direction
 const reverse = direction => {
     let result = "";
-
     if (direction == "n") {
         result = "s";
     } else if (direction == "s") {
@@ -27,7 +24,6 @@ const reverse = direction => {
     } else if (direction == "e") {
         result = "w";
     }
-
     return result;
 };
 const api_key = process.env.API_KEY;
@@ -39,20 +35,14 @@ const options = {
 };
 //Initialize: this will just return the first room (room_id = 0)
 axios
-    .get(
-        "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
-        options
-    )
+    .get("https://lambda-treasure-hunt.herokuapp.com/api/adv/init/", options)
     .then(res => {
         console.log("init: ", res.data);
-
         // Set the current_room to res.data
         currentRoom = res.data;
-
         // Print out the current room ID and the exits
         console.log("Room ID: ", currentRoom.room_id);
         console.log("Room exits: ", currentRoom.exits);
-
         // Set the cool down period to whatever it is in the current room
         coolDown = currentRoom.cooldown;
     })
@@ -77,25 +67,20 @@ adventure = () => {
 
     console.log("CURRENT MAP:", map)
     console.log("The map length is now: ", Object.keys(map).length);
-
     //   Add unexplored exits to the map with a X
     currentRoom.exits.forEach(exit => {
         if (map[room_ID][exit.toString()] == undefined) {
             map[room_ID][exit.toString()] = "?";
         }
     });
-
     graph[room_ID] = currentRoom;
-
     //   Create array of unexplored rooms
     for (var key in map[room_ID]) {
         if (map[room_ID][key] == "?") {
             unexplored_rooms.push(key);
         }
     }
-
     console.log("The remaining unexplored rooms are:\n", unexplored_rooms);
-
     // Create a helper function to move between rooms and pause for cool down
     // This uses the move() function from graph.js to move between the current and target room
     const toRoom = (current_room_id, target_room_id) => {
@@ -124,7 +109,6 @@ adventure = () => {
                 );
         }, coolDown * 1000);
     };
-
     const sellTreasure = () => {
         if (!treasure.length) {
             if (!name_changed) {
@@ -172,7 +156,6 @@ adventure = () => {
                 );
         }, coolDown * 1000);
     }
-
     // PREVIOUS VERSION
     // if (currentRoom.items.length) {
     //     setTimeout(() => {
@@ -196,7 +179,6 @@ adventure = () => {
     //             );
     //     }, coolDown * 1000);
     // }
-
     /*
 The following conditional will handle:
 1. Free movement: there is nothing stopping the explorer from moving to another room
@@ -208,30 +190,31 @@ Based on the above, the if statements should have these conditions:
 3. unexplored_rooms == 0 && reversePath.length == 0
 TODO: Add in the logic that picks up treasure, etc.
 */
-
     if (unexplored_rooms.length > 0) {
         console.log("Free to explore");
         // Pick a room from the unexplored_rooms array
         let move_forward = unexplored_rooms[0];
         unexplored_rooms = [];
-
         // Add the next move to the traversalPath array
         traversalPath.push(move_forward);
-
         // Add the opposite direction move to the reversePath array
         let reverse_move = reverse(move_forward);
         reversePath.push(reverse_move);
 
-        /*
-    Use setTimeout and POST('move') to move to the next room
-    Add the new room_id to the map
-    Add the exits to the map
-    Add the opposite direction move to the map
-    Change cool down to current room cool down
-    */
+/*
+Use setTimeout and POST('move') to move to the next room
+Add the new room_id to the map
+Add the exits to the map
+Add the opposite direction move to the map
+Change cool down to current room cool down
+*/
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: move_forward }, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
+                    { direction: move_forward },
+                    options
+                )
                 .then(res => {
                     console.log("Moved forward");
                     // Save room_id to previous_room_id and set new currentRoom
@@ -257,7 +240,6 @@ TODO: Add in the logic that picks up treasure, etc.
                     graph[new_room_id] = currentRoom;
                     // Set the cooldown to the current room's cool down length
                     coolDown = res.data.cooldown;
-
                     if (Object.keys(map).length !== 500) {
                         setTimeout(() => {
                             adventure();
@@ -266,24 +248,24 @@ TODO: Add in the logic that picks up treasure, etc.
                 })
                 .catch(err => console.log("Error moving forward: ", err));
         }, coolDown * 1000);
-
         // Check if map.length == 500 and if not, loop through adventure() again
     } else if (unexplored_rooms.length == 0 && reversePath.length) {
         console.log("Dead end");
         // Get last move from reversePath array
         let reversed_path = reversePath.pop();
-
         // Add the reversed move to the traversalPath
         traversalPath.push(reversed_path);
-
         // Use setTimeout and POST('move') to move to the reversed room
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: reversed_path }, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
+                    { direction: reversed_path },
+                    options
+                )
                 .then(res => {
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
-
                     if (Object.keys(map).length !== 500) {
                         setTimeout(() => {
                             adventure();
@@ -303,14 +285,11 @@ TODO: Add in the logic that picks up treasure, etc.
             "It looks like you've explored the whole map...congratulations! \nJust to be sure, the current map length is: ",
             Object.keys(map).length
         );
-
         console.log(map, graph);
     }
 };
-
 // Run the adventure function (while will continue till map.length==500)
 // while waiting the correct amount of time between each move
 setTimeout(() => {
     adventure();
 }, coolDown * 1000);
-
