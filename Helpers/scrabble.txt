@@ -11,6 +11,9 @@ curl -X POST -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' 
 // STATUS
 curl -X POST -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' -H "Content-Type: application/json" https://lambda-treasure-hunt.herokuapp.com/api/adv/status/
 
+// DROP
+curl -X POST -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' -H "Content-Type: application/json" -d '{"name":"tiny treasure"}' https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/
+
 // MAP LIST LAST RUN
 MAP LIST {
   '0': { n: 10, s: 2, e: '?', w: '?' },

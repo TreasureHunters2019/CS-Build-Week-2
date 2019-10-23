@@ -1,6 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const move = require("./graph");
+const dfs = require("/graph");
 var fs = require("fs");
 
 // Create empty arrays and list to hold map and paths
@@ -75,6 +76,7 @@ adventure = () => {
         map[room_ID] = {};
     }
 
+    console.log("CURRENT MAP:", map)
     console.log("The map length is now: ", Object.keys(map).length);
 
     //   Add unexplored exits to the map with a X
@@ -92,7 +94,7 @@ adventure = () => {
             unexplored_rooms.push(key);
         }
     }
-    console.log("CURRENT MAP:", map)
+
     console.log("The remaining unexplored rooms are:\n", unexplored_rooms);
 
     // Create a helper function to move between rooms and pause for cool down
@@ -109,7 +111,7 @@ adventure = () => {
     const takeTreasure = (treasure) => {
         const takeBody = {
             "name": treasure
-        } 
+        }
         setTimeout(() => {
             axios
                 .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
@@ -148,29 +150,102 @@ adventure = () => {
         }, coolDown * 1000);
     };
 
+    const targetRoom = (target_room_id) => {
+        // **** can we use toRoom() to get a list of string directions? 
+        // **** if yes, then we can use a forEach loop and feed into the move function
+        // toRoom(currentRoom.room_id, room_id)    
+                                      
+        // get path to target
+        path_to_target = dfs(currentRoom.room_id, target_room_id)
+
+        // traverse from CURRENT ROOM to TARGET ROOM
+        // for each ROOM ID in path_to_target 
+        // move from current room to ROOM ID 
+        path_to_target.forEach( room_id => {
+            
+            // for each room_id convert to a string direction 'n' 's' 'e' 'w' for the POST call
+            // **** working here currently ****
+            string_direction = null;
+            map[room_id].forEach( direction => {
+                if (direction === map[NEXT_ROOM_ID_IN_PATH]) {
+                    string_direction = direction
+                }
+            })
+
+            // move function
+            setTimeout(() => {
+                axios
+                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: string_direction }, options)
+                    .then(res => {
+                        console.log(res.data);
+                    })
+                    .catch(err => console.log("Error while attempting to traverse: ", err.message));
+            }, coolDown * 1000);
+
+        });
+
+        // return target room info
+        console.log(currentRoom);
+
+        // return current inventory
+        axios
+        .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+        .then(res => {
+            console.log("Current inventory:", res.data.inventory);
+        })
+        .catch(err => {
+            console.log(err.message)
+        });
+        
+    };
+
     // Check if the room has items in it, and if so, pick them up
-    if (currentRoom.items.length) {
-        setTimeout(() => {
-            var treasure = [...currentRoom.items];
-            console.log(
-                "The item(s) you're picking up are: ",
-                treasure
-            );
-            takeTreasure(treasure[0]);
-            axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
-                .then(res => {
-                    console.log("Current inventory:", res.data.inventory);
-                })
-                .catch(err =>
-                    console.log(
-                        // "Error picking up treasure while on the map: ",
-                        err.message,
-                        // currentRoom
-                    )
-                );
-        }, coolDown * 1000);
-    }
+    //     if (currentRoom.items.length) {
+    //     setTimeout(() => {
+    //         var treasure = [...currentRoom.items];
+    //         console.log(
+    //             "The item(s) you're picking up are: ",
+    //             treasure
+    //         );
+    //         takeTreasure(treasure[0]);
+    //         axios
+    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+    //             .then(res => {
+    //                 console.log("Current inventory:", res.data.inventory);
+    //             })
+    //             .catch(err =>
+    //                 console.log(
+    //                     // "Error picking up treasure while on the map: ",
+    //                     err.message,
+    //                     // currentRoom
+    //                 )
+    //             );
+    //     }, coolDown * 1000);
+    // }
+
+    // PREVIOUS VERSION
+    // if (currentRoom.items.length) {
+    //     setTimeout(() => {
+    //         axios
+    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+    //             .then(res => {
+    //                 console.log("Current inventory:", res.data.inventory);
+    //                 var treasure = [...currentRoom.items];
+    //                 console.log(
+    //                     "The item(s) you're picking up are: ",
+    //                     treasure
+    //                 );
+    //                 takeTreasure(treasure[0]);
+    //             })
+    //             .catch(err =>
+    //                 console.log(
+    //                     "Error picking up treasure while on the map: ",
+    //                     err,
+    //                     currentRoom
+    //                 )
+    //             );
+    //     }, coolDown * 1000);
+    // }
 
     /*
 The following conditional will handle:
@@ -259,7 +334,7 @@ TODO: Add in the logic that picks up treasure, etc.
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
 
-                    if (Object.keys(map).length >= 500) {
+                    if (Object.keys(map).length !== 500) {
                         setTimeout(() => {
                             adventure();
                         }, coolDown * 1000);

@@ -52,3 +52,4 @@ const move = (current_room_id, target_room_id) => {
 };
 
 module.exports = move;
+module.exports = dfs;
