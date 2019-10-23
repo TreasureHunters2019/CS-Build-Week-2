@@ -6,7 +6,20 @@ var fs = require("fs");
 // Create empty arrays and list to hold map and paths
 let traversalPath = [];
 let reversePath = [];
-let map = {};
+let map = {
+'10': { n: 19, s: '?', w: '?' },
+'19': { n: 20, s: 10, w: '?' },
+'20': { n: 63, s: 19, e: '?', w: '?' },
+'63': { n: 72, s: 20, w: '?' },
+'72': { s: 63, w: 76 },
+'76': { n: 83, e: 72, w: '?' },
+'83': { s: 76, e: '?', w: 125 },
+'125': { n: 165, e: 83, w: '?' },
+'165': { n: 203, s: 125, w: '?' },
+'203': { n: 268, s: 165, e: '?' },
+'268': { s: 203, e: 411, w: '?' },
+'411': { w: 268 }
+};
 let graph = {};
 let name_changed = false;
 // Create a variable for the current room
@@ -57,7 +70,7 @@ adventure = () => {
     console.log(" ");
     console.log("CURRENT ROOM:", currentRoom.room_id);
     // console.log("Currently in room:", currentRoom.room_id);
-    // console.log("with:", currentRoom.items);
+    console.log("with:", currentRoom.items);
     //   Check if the current room is in the map object, and if not, add it
     if (!map[room_ID]) {
         map[room_ID] = {};
