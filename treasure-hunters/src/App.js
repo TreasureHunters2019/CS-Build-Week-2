@@ -130,36 +130,28 @@ export const App = () => {
 //Get Status
   const getStatus = () => {
       axios
-      .post(baseURL + "adv/init/")
+      .post(baseURL + "adv/status/")
       .then(res => {
         console.log("this is the get status data", res.data);
-        let room_id = res.data.room_id;
-        let exits = res.data.exits;
-        let description = res.data.description;
-        let items = res.data.items;
+        let playerName = res.data.name;
+        let speed = res.data.speed;
+        let strength = res.data.strength;
+        let inventory = res.data.inventory;
+        let encumbrance = res.data.encumbrance;
         let messages = res.data.messages;
-        let terrain = res.data.terrain;
-        let title = res.data.title;
-        let elevation = res.data.elevation;
-        let coordinates = res.data.coordinates;
-        let coolDown = res.data.cooldown;
-        let players = res.data.players;
+        let gold = res.data.gold;
         
-        setRoom({
-            room_id: room_id,
-            exits: exits,
-            description: description,
-            items: items,
-            messages: messages,
-            terrain: terrain,
-            title: title,
-            elevation: elevation,
-            coordinates: coordinates,
-            cooldown: coolDown,
-            players: players
-          })
+        setPlayer({
+          name: playerName,
+          speed: speed,
+          strength: strength,
+          inventory: inventory,
+          encumbrance: encumbrance,
+          messages: messages,
+          gold: gold
+        })
       })
-      .catch(err => console.log("Error getting initial Room data with status", err));
+      .catch(err => console.log("Error getting initial Room data with status", err.message));
 
       setTimeout(() => {
         axios
@@ -185,7 +177,7 @@ export const App = () => {
               gold: gold
             })
       })
-      .catch(err => console.log("Error in the status function", err))
+      .catch(err => console.log("Error in the status function", err.message))
     }, room.cooldown * 1000);
   }
 
