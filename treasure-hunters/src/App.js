@@ -1,5 +1,4 @@
 import React, { useState, useEffect }from 'react';
-import { withRouter } from "react-router";
 import axios from "axios";
 import NavBar from "./Components/NavBar";
 import Commands from "./Components/MoveCommands";
@@ -38,9 +37,7 @@ export const App = () => {
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
   const [currentRoom, setCurrentRoom] = useState()
-  const [graph, setGraph] = useState({})
-  const [lastRoom, setLastRoom] = useState(null)
-  
+
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
   axios.interceptors.request.use(
