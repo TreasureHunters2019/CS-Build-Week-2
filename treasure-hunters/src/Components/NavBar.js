@@ -25,9 +25,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NavBar = ({currentRoom}) => {
-    const classes = useStyles();
-    console.log('this is the current room', currentRoom);
-    
+    const classes = useStyles();    
     return (
         <div className={classes.root}>
             <AppBar className={ classes.appBar} position="static" title="Lambda Treasure Hunt 💰">
