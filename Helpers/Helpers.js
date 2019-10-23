@@ -99,7 +99,7 @@ adventure = () => {
 
     // Create a helper function to move between rooms and pause for cool down
     // This uses the move() function from graph.js to move between the current and target room
-    const toRoom = (current_room_id, target_room_id) => {
+    export const toRoom = (current_room_id, target_room_id) => {
         const directions = move(current_room_id, target_room_id);
         console.log(
             "The directions to get to where you're going are: ",
@@ -151,30 +151,18 @@ adventure = () => {
     };
 
     const targetRoom = (target_room_id) => {
-        // **** can we use toRoom() to get a list of string directions? 
-        // **** if yes, then we can use a forEach loop and feed into the move function
-        // toRoom(currentRoom.room_id, target_room_id)    
-                                      
+           
         // get path to target
-        path_to_target = dfs(currentRoom.room_id, target_room_id)
+        path_to_target = toRoom(currentRoom.room_id, target_room_id)     
 
         // traverse from CURRENT ROOM to TARGET ROOM
         // for each ROOM ID in path_to_target 
         // move from current room to ROOM ID 
-        path_to_target.forEach( room_id => {
-            
-            // for each room_id convert to a string direction 'n' 's' 'e' 'w' for the POST call
-            // **** working here currently ****
-            string_direction = null;
-            map[currentRoom.room_id].forEach( direction => {
-                if (direction === map[NEXT_ROOM_ID_IN_PATH]) {
-                    string_direction = direction
-                }
-            })
+        path_to_target.forEach( direction => {
             // move function
             setTimeout(() => {
                 axios
-                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: string_direction }, options)
+                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
                     .then(res => {
                         console.log(res.data);
                     })
