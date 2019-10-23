@@ -104,10 +104,13 @@ adventure = () => {
     };
 
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
-    const takeTreasure = treasure => {
+    const takeTreasure = (treasure) => {
+        const takeBody = {
+            "name": treasure
+        } 
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", { name: treasure }, options)
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
                 .then(res => {
                     console.log(res.data);
                     alert("You've found treasure");
@@ -119,7 +122,7 @@ adventure = () => {
         }, coolDown * 1000);
     };
 
-    const sellTreasure = treasure => {
+    const sellTreasure = () => {
         if (!treasure.length) {
             if (!name_changed) {
                 toRoom(1, 467);
@@ -128,8 +131,12 @@ adventure = () => {
         }
 
         setTimeout(() => {
+            const sellBody = {
+                "name": "treasure",
+                "confirm": "yes"
+            }
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/", { name: treasure, confirm: "yes" }, options)
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/", sellBody, options)
                 .then(res => {
                     sellTreasure(treasure.pop(0));
                 })
@@ -231,7 +238,7 @@ TODO: Add in the logic that picks up treasure, etc.
                     }
                 })
                 .catch(err => console.log("Error moving forward: ", err));
-        }, coolDown * 2700);
+        }, coolDown * 1000);
 
         // Check if map.length == 500 and if not, loop through adventure() again
     } else if (unexplored_rooms.length == 0 && reversePath.length) {
@@ -279,3 +286,4 @@ TODO: Add in the logic that picks up treasure, etc.
 setTimeout(() => {
     adventure();
 }, coolDown * 1000);
+
