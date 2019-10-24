@@ -37,6 +37,7 @@ export const App = () => {
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
   const [currentRoom, setCurrentRoom] = useState()
+  const [roomId, setRoomId] = useState()
 
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
@@ -90,6 +91,9 @@ export const App = () => {
         cooldown: coolDown,
         players: players
       })
+      setRoomId(
+        room_id
+      )
     })
     .catch(
       err => console.log("Error getting initial room data", err)
@@ -226,7 +230,7 @@ export const App = () => {
       <CssBaseline />
       <NavBar currentRoom={currentRoom}/>
       <Info player={player} room={room} />
-      <Commands move={move} getStatus={getStatus} /> 
+      <Commands move={move} getStatus={getStatus} roomId={roomId}/> 
       <Map currentRoom={room.room_id} />
     </div>
   );
