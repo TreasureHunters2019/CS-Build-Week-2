@@ -46,5 +46,5 @@ const makeMoves = () => {
         }
     }
 
-toRoom(55, 215)
+toRoom(194, 55)
 

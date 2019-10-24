@@ -2104,4 +2104,6 @@ const makeMoves = () => {
         }
     }
 
+toRoom(194, 55)
+
 module.exports = toRoom;
