@@ -39,5 +39,5 @@ const toRoom = (current_room_id, target_room_id) => {
     );
 };
 
-toRoom(467, 55)
+toRoom(55, 377)
 

@@ -26,6 +26,12 @@ curl -X POST -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' 
 // LAST PROOF
 curl -X GET -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' https://lambda-treasure-hunt.herokuapp.com/api/bc/last_proof/
 
+// MINE
+curl -X POST -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' -H "Content-Type: application/json" -d '{"proof":new_proof}' https://lambda-treasure-hunt.herokuapp.com/api/bc/mine/
+
+// BALANCE
+curl -X GET -H 'Authorization: Token 2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1' https://lambda-treasure-hunt.herokuapp.com/api/bc/get_balance/
+
 // MAP LIST LAST RUN
 CURRENT MAP: {
   '0': { n: 10, s: 2, e: '?', w: '?' },
