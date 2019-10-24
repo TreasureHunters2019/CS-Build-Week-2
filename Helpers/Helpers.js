@@ -70,15 +70,18 @@ axios
 adventure = () => {
     let room_ID = currentRoom.room_id;
     let unexplored_rooms = [];
-    console.log(" ");
-    console.log("CURRENT ROOM:", currentRoom.room_id);
+
+    console.log(" ")
+    console.log("CURRENT ROOM:", currentRoom)
     // console.log("Currently in room:", currentRoom.room_id);
-    console.log("with:", currentRoom.items);
+    // console.log("with:", currentRoom.items);
+
     //   Check if the current room is in the map object, and if not, add it
     if (!map[room_ID]) {
         map[room_ID] = {};
     }
-    console.log("CURRENT MAP:", map);
+
+    console.log("CURRENT MAP:", map)
     console.log("The map length is now: ", Object.keys(map).length);
     //   Add unexplored exits to the map with a X
     currentRoom.exits.forEach(exit => {
@@ -103,6 +106,7 @@ adventure = () => {
             directions
         );
     };
+
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
     const takeTreasure = treasure => {
         setTimeout(() => {
@@ -129,19 +133,14 @@ adventure = () => {
             }
             return;
         }
+
         setTimeout(() => {
             const sellBody = {
-                body:{
-                    name: "treasure",
-                    confirm: "yes"
-                }
-            };
+                "name": "treasure",
+                "confirm": "yes"
+            }
             axios
-                .post(
-                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/",
-                    sellBody,
-                    options
-                )
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/", sellBody, options)
                 .then(res => {
                     sellTreasure(treasure.pop(0));
                 })
@@ -150,30 +149,31 @@ adventure = () => {
                 );
         }, coolDown * 1000);
     };
+
     // Check if the room has items in it, and if so, pick them up
-    if (currentRoom.items.length) {
-        setTimeout(() => {
-            
-            axios
-                .post(
-                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/status/",
-                    options
-                )
-                .then(res => {
-                    console.log("Current inventory:", res.data.inventory);
-                    var treasure = [...currentRoom.items];
-                    console.log("The item(s) you're picking up are: ", treasure);
-                    takeTreasure(treasure[0]);
-                })
-                .catch(err =>
-                    console.log(
-                        // "Error picking up treasure while on the map: ",
-                        err.message
-                        // currentRoom
-                    )
-                );
-        }, coolDown * 1000);
-    }
+    //     if (currentRoom.items.length) {
+    //     setTimeout(() => {
+    //         var treasure = [...currentRoom.items];
+    //         console.log(
+    //             "The item(s) you're picking up are: ",
+    //             treasure
+    //         );
+    //         takeTreasure(treasure[0]);
+    //         axios
+    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+    //             .then(res => {
+    //                 console.log("Current inventory:", res.data.inventory);
+    //             })
+    //             .catch(err =>
+    //                 console.log(
+    //                     // "Error picking up treasure while on the map: ",
+    //                     err.message,
+    //                     // currentRoom
+    //                 )
+    //             );
+    //     }, coolDown * 1000);
+    // }
+
     // PREVIOUS VERSION
     // if (currentRoom.items.length) {
     //     setTimeout(() => {
@@ -198,6 +198,7 @@ adventure = () => {
     //     }, coolDown * 1000);
     // }
     /*
+
 The following conditional will handle:
 1. Free movement: there is nothing stopping the explorer from moving to another room
 2. Dead end: the explorer can reverse his/her path until a room has an unexplored exit
