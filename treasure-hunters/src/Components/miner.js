@@ -1,5 +1,24 @@
+require("dotenv").config();
+const axios = require("axios");
 const Hashes = require("jshashes");
 const utf8 = require("utf8");
+
+const api_key = process.env.API_KEY;
+axios.interceptors.request.use(
+    options => {options.headers.authorization = `Token ${api_key}`
+    return options},
+    error => {return Promise.reject(error)}
+)
+const get_last = () => {
+    console.log("trigger");
+    axios
+    .get("https://lambda-treasure-hunt.herokuapp.com/api/bc/last_proof")
+    .then(res => {
+        console.log('this is the last proof \n', res.data.proof);
+        // get_proof(res.data.proof)
+    })
+    .catch(err => {"error getting the last proof \n", err.message})
+}
 
 function get_proof(last_proof) {
     let proof = Math.floor(Math.random() * 1000000);
@@ -21,3 +40,6 @@ function get_proof(last_proof) {
 
 // add last proof and run it 
 get_proof(2048);
+
+//the axios for last proof
+//get_last();
