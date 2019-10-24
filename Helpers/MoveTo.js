@@ -3,26 +3,6 @@ const axios = require("axios");
 const move = require("./graph");
 var fs = require("fs");
 
-
-// axios
-//     .get(
-//         "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
-//         options
-//     )
-//     .then(res => {
-//         console.log("init: ", res.data);
-//         // Set the cool down period to whatever it is in the current room
-//         coolDown = currentRoom.cooldown;
-//     })
-
-//         // Set the current_room to res.data
-//         currentRoom = res.data.room_id;
-
-//         // Print out the current room ID and the exits
-//         console.log("Room ID: ", currentRoom.room_id);
-//         console.log("Room exits: ", currentRoom.exits);
-
-//     .catch(err => console.error(err));
 const moves = [];
 const api_key = process.env.API_KEY;
 axios.interceptors.request.use(
@@ -40,23 +20,15 @@ const toRoom = (current_room_id, target_room_id) => {
     directions.forEach(move => {
         moves.push(move)
     })
-    return makeMoves();
+    // return makeMoves();
 };
-
-// const body = {
-//     direction: `${moves[0]}`
-// }
-
-// let coolDown = 16;
 
 const makeMoves = () => {
     if(moves.length > 0){
-        // console.log(body);
-        // console.log(`${moves[0]}`);
         axios
         .post(
             "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
-            {direction: moves[0]})
+            {direction: moves[0][0], next_room_id: moves[0][1]})
             .then(res => {
                 console.log("you have moved a room");
                 console.log('this is the new cooldown \n', res.data.cooldown);
@@ -74,9 +46,5 @@ const makeMoves = () => {
         }
     }
 
-// setTimeout(() => {
-//     makeMoves()
-// }, coolDown*1000);
-
-toRoom(303, 55)
+toRoom(55, 215)
 
