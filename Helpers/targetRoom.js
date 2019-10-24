@@ -36,25 +36,20 @@ const options = {
 
 const toRoom = (current_room_id, target_room_id) => {
     const directions = move(current_room_id, target_room_id);
-    console.log(
-        "The directions to get to where you're going are: ",
-        directions
-    );
     return directions
 };
 
-toRoom(467, 55)
+toRoom(194, 55)
 
-const targetRoom = (target_room_id) => {
+async function targetRoom = (target_room_id) => {
            
     // get path to target
-    path_to_target = toRoom(467, target_room_id)    
+    path_to_target = toRoom(194, target_room_id)    
     console.log('PATH TO TARGET', path_to_target)
 
     // for each ROOM ID in path_to_target 
     // move from current room to ROOM ID 
-    path_to_target.forEach( direction => {
-        setTimeout(() => {
+    path_to_target.forEach( direction => { 
         // move function
             setTimeout(() => {
                 axios
@@ -65,8 +60,6 @@ const targetRoom = (target_room_id) => {
                     })
                     .catch(err => console.log("Error while attempting to traverse: ", err.message));
             }, 16000);
-        }, 16000)
-
     });
 
 };

@@ -134,28 +134,29 @@ adventure = () => {
     };
 
     // Check if the room has items in it, and if so, pick them up
-        if (currentRoom.items.length) {
-        setTimeout(() => {
-            var treasure = [...currentRoom.items];
-            console.log(
-                "The item(s) you're picking up are: ",
-                treasure
-            );
-            takeTreasure(treasure[0]);
-            axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
-                .then(res => {
-                    console.log("Current inventory:", res.data.inventory);
-                })
-                .catch(err =>
-                    console.log(
-                        // "Error picking up treasure while on the map: ",
-                        err.message,
-                        // currentRoom
-                    )
-                );
-        }, coolDown * 1000);
-    }
+    //     if (currentRoom.items.length) {
+    //     setTimeout(() => {
+    //         var treasure = [...currentRoom.items];
+    //         console.log(
+    //             "The item(s) you're picking up are: ",
+    //             treasure
+    //         );
+    //         takeTreasure(treasure[0]);
+    //         axios
+    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+    //             .then(res => {
+    //                 console.log("Current inventory:", res.data.inventory);
+    //             })
+    //             .catch(err =>
+    //                 console.log(
+    //                     // "Error picking up treasure while on the map: ",
+    //                     err.message,
+    //                     // currentRoom
+    //                 )
+    //             );
+    //     }, coolDown * 1000);
+    // }
+
     // PREVIOUS VERSION
     // if (currentRoom.items.length) {
     //     setTimeout(() => {
@@ -180,6 +181,7 @@ adventure = () => {
     //     }, coolDown * 1000);
     // }
     /*
+
 The following conditional will handle:
 1. Free movement: there is nothing stopping the explorer from moving to another room
 2. Dead end: the explorer can reverse his/her path until a room has an unexplored exit
