@@ -108,13 +108,14 @@ adventure = () => {
     };
 
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
-    const takeTreasure = (treasure) => {
-        const takeBody = {
-            "name": treasure
-        }
+    const takeTreasure = treasure => {
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/",
+                    {name: treasure},
+                    options
+                )
                 .then(res => {
                     console.log(res.data);
                     console.log("You've found treasure");

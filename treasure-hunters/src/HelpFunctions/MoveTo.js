@@ -2055,17 +2055,17 @@ const move = (current_room_id, target_room_id) => {
     const steps = dfs(current_room_id, target_room_id)
     console.log('this is the steps ' + steps);
     
-    // const directions = [];
-    // while(steps !== null || undefined){
-    //     for (let i = 0; i < steps.length; i++) {
-    //         Object.keys(map[steps[i]]).forEach(key => {
-    //             if (steps[i + 1] === map[steps[i]][key]) {
-    //                 directions.push(key);
-    //             }
-    //         });
-    //     }
-    // }
-    // return directions;
+    const directions = [];
+    while(steps !== null || undefined){
+        for (let i = 0; i < steps.length; i++) {
+            Object.keys(map[steps[i]]).forEach(key => {
+                if (steps[i + 1] === map[steps[i]][key]) {
+                    directions.push(key);
+                }
+            });
+        }
+        return directions;
+    }
 };
 
 const toRoom = (current_room_id, target_room_id) => {
@@ -2077,5 +2077,5 @@ const toRoom = (current_room_id, target_room_id) => {
     return directions;
 };
 
-module.exports = dfs;
+// module.exports = dfs;
 module.exports = toRoom;

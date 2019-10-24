@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Axios from "axios";
 
 const toRoom = require("../HelpFunctions/MoveTo")
-const dfs = require('../HelpFunctions/MoveTo')
+// const dfs = require('../HelpFunctions/MoveTo')
 
 const CommandStyles = styled.div`
   width: 100%;
@@ -41,12 +41,11 @@ const Buttons = styled.button`
 
 const MoveCommands = ({move, getStatus, roomId}) =>{
   const [Room, setRoom] = useState()
-  console.log(roomId);
-  console.log(Room);
+  // console.log(roomId);
+  // console.log(Room);
   
   const submit = (e) =>{
     e.preventDefault();
-    dfs(roomId, Room)
     toRoom(roomId, Room)
   }
 
