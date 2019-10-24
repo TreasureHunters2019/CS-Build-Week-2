@@ -20,15 +20,15 @@ const toRoom = (current_room_id, target_room_id) => {
     directions.forEach(move => {
         moves.push(move)
     })
-    // return makeMoves();
+    return makeMoves();
 };
-
+// , next_room_id: moves[0][1]
 const makeMoves = () => {
     if(moves.length > 0){
         axios
         .post(
             "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
-            {direction: moves[0][0], next_room_id: moves`$[0][1]`})
+            {direction: moves[0][0], next_room_id: `${moves[0][1]}`})
             .then(res => {
                 console.log("you have moved a room");
                 console.log('this is the new cooldown \n', res.data.cooldown);
@@ -46,5 +46,5 @@ const makeMoves = () => {
         }
     }
 
-toRoom(55, 215)
+toRoom(123, 55)
 
