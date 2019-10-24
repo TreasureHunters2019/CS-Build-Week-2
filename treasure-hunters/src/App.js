@@ -229,8 +229,10 @@ export const App = () => {
     <div className="App">
       <CssBaseline />
       <NavBar currentRoom={currentRoom}/>
-      <Info player={player} room={room} />
-      <Commands move={move} getStatus={getStatus} roomId={roomId}/> 
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+        <Info player={player} room={room} />
+        <Commands move={move} getStatus={getStatus} roomId={roomId}/> 
+      </div>
       <Map currentRoom={room.room_id} />
     </div>
   );
