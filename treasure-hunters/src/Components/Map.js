@@ -51,11 +51,11 @@ const Map = props => {
         <div>
             {(!links.length && !coordinates.length) ? <div>Loading...</div> :
             <StyledMap>
-                <FlexibleXYPlot width={1024} height={768}>
+                <FlexibleXYPlot width={750} height={750}>
                     {/* To display the lines on the map to the next plot point */}
                     {links.map(link => (
                         <LineSeries
-                            strokeWidth="6"
+                            strokeWidth="2.5"
                             color="#990000"
                             data={link}
                             key={Math.random() * 100}
@@ -64,9 +64,9 @@ const Map = props => {
                     {/* Plot the points for the room */}
                     <MarkSeries
                         current={props.currentRoom}
-                        strokeWidth={2}
+                        strokeWidth={1}
                         opacity="1"
-                        size="10"
+                        size="8"
                         color="#FFD014"
                         data={coordinates}
                         style={{ cursor: "pointer", transition: "all .2s" }}
