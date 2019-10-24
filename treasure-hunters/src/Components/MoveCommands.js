@@ -1,5 +1,9 @@
 import React, {useState } from "react";
 import styled from "styled-components";
+import Axios from "axios";
+
+const toRoom = require("../HelpFunctions/MoveTo")
+// const dfs = require('../HelpFunctions/MoveTo')
 
 const CommandStyles = styled.div`
   width: 100%;
@@ -35,16 +39,42 @@ const Buttons = styled.button`
   }
 `;
 
-const MoveCommands = (props) =>{
+const MoveCommands = ({move, getStatus, roomId}) =>{
+  const [Room, setRoom] = useState()
+  // console.log(roomId);
+  // console.log(Room);
+  
+  const submit = (e) =>{
+    e.preventDefault();
+    toRoom(roomId, Room)
+  }
 
+  const handleChange = (e) => {
+    e.preventDefault();
+    setRoom(
+      e.target.value
+    );
+  };
     return (
       <CommandStyles>
         <div className="buttons">
-          <Buttons onClick={() => props.move("n")}>N</Buttons>
-          <Buttons onClick={() => props.move("s")}>S</Buttons>
-          <Buttons onClick={() => props.move("e")}>E</Buttons>
-          <Buttons onClick={() => props.move("w")}>W</Buttons>
-          <Buttons onClick={() => props.getStatus()}>Status</Buttons>
+          <Buttons onClick={() => move("n")}>N</Buttons>
+          <Buttons onClick={() => move("s")}>S</Buttons>
+          <Buttons onClick={() => move("e")}>E</Buttons>
+          <Buttons onClick={() => move("w")}>W</Buttons>
+          <Buttons onClick={() => getStatus()}>Status</Buttons>
+        </div>
+        <div>
+            <form onSubmit={submit}>
+                <input
+                    type="text"
+                    name="Room"
+                    placeholder = "enter a desired room"
+                    onChange = {handleChange}
+                    value = {Room}
+                />
+                <button onClick={() => submit}>Submit</button>
+            </form>
         </div>
       </CommandStyles>
     );

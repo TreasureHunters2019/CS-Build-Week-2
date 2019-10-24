@@ -6,18 +6,31 @@ var fs = require("fs");
 // Create empty arrays and list to hold map and paths
 let traversalPath = [];
 let reversePath = [];
-let map = {};
+let map = {
+    '10': { n: 19, s: '?', w: '?' },
+    '19': { n: 20, s: 10, w: '?' },
+    '20': { n: 63, s: 19, e: '?', w: '?' },
+    '63': { n: 72, s: 20, w: '?' },
+    '72': { s: 63, w: 76 },
+    '76': { n: 83, e: 72, w: '?' },
+    '83': { s: 76, e: '?', w: 125 },
+    '125': { n: 165, e: 83, w: '?' },
+    '165': { n: 203, s: 125, w: '?' },
+    '203': { n: 268, s: 165, e: '?' },
+    '268': { s: 203, e: 411, w: '?' },
+    '408': { n: 458, s: '?', w: '?' },
+    '411': { w: 268 },
+    '458': { s: 408, w: 459 },
+    '459': { e: 458 }
+};
 let graph = {};
 let name_changed = false;
-
 // Create a variable for the current room
 let currentRoom = null;
 let coolDown = 16; // To account for the 15 second cool down period
-
 // Create a helper function to reverse the N, S, E, W direction
 const reverse = direction => {
     let result = "";
-
     if (direction == "n") {
         result = "s";
     } else if (direction == "s") {
@@ -27,7 +40,6 @@ const reverse = direction => {
     } else if (direction == "e") {
         result = "w";
     }
-
     return result;
 };
 const api_key = process.env.API_KEY;
@@ -39,20 +51,14 @@ const options = {
 };
 //Initialize: this will just return the first room (room_id = 0)
 axios
-    .get(
-        "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
-        options
-    )
+    .get("https://lambda-treasure-hunt.herokuapp.com/api/adv/init/", options)
     .then(res => {
         console.log("init: ", res.data);
-
         // Set the current_room to res.data
         currentRoom = res.data;
-
         // Print out the current room ID and the exits
         console.log("Room ID: ", currentRoom.room_id);
         console.log("Room exits: ", currentRoom.exits);
-
         // Set the cool down period to whatever it is in the current room
         coolDown = currentRoom.cooldown;
     })
@@ -64,35 +70,30 @@ axios
 adventure = () => {
     let room_ID = currentRoom.room_id;
     let unexplored_rooms = [];
-
-    console.log("Currently in room:", currentRoom.room_id);
+    console.log(" ");
+    console.log("CURRENT ROOM:", currentRoom.room_id);
+    // console.log("Currently in room:", currentRoom.room_id);
     console.log("with:", currentRoom.items);
-
     //   Check if the current room is in the map object, and if not, add it
     if (!map[room_ID]) {
         map[room_ID] = {};
     }
-
+    console.log("CURRENT MAP:", map);
     console.log("The map length is now: ", Object.keys(map).length);
-
     //   Add unexplored exits to the map with a X
     currentRoom.exits.forEach(exit => {
         if (map[room_ID][exit.toString()] == undefined) {
             map[room_ID][exit.toString()] = "?";
         }
     });
-
     graph[room_ID] = currentRoom;
-
     //   Create array of unexplored rooms
     for (var key in map[room_ID]) {
         if (map[room_ID][key] == "?") {
             unexplored_rooms.push(key);
         }
     }
-
     console.log("The remaining unexplored rooms are:\n", unexplored_rooms);
-
     // Create a helper function to move between rooms and pause for cool down
     // This uses the move() function from graph.js to move between the current and target room
     const toRoom = (current_room_id, target_room_id) => {
@@ -102,18 +103,18 @@ adventure = () => {
             directions
         );
     };
-
     // Helper functions for picking up treasure, selling treasure, and checking inventory/status
-    const takeTreasure = (treasure) => {
-        const takeBody = {
-            "name": treasure
-        } 
+    const takeTreasure = treasure => {
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", takeBody, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/",
+                    {name: treasure},
+                    options
+                )
                 .then(res => {
                     console.log(res.data);
-                    alert("You've found treasure");
+                    console.log("You've found treasure");
                     coolDown = res.data.cooldown;
                 })
                 .catch(err =>
@@ -121,7 +122,6 @@ adventure = () => {
                 );
         }, coolDown * 1000);
     };
-
     const sellTreasure = () => {
         if (!treasure.length) {
             if (!name_changed) {
@@ -129,14 +129,19 @@ adventure = () => {
             }
             return;
         }
-
         setTimeout(() => {
             const sellBody = {
-                "name": "treasure",
-                "confirm": "yes"
-            }
+                body:{
+                    name: "treasure",
+                    confirm: "yes"
+                }
+            };
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/", sellBody, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/",
+                    sellBody,
+                    options
+                )
                 .then(res => {
                     sellTreasure(treasure.pop(0));
                 })
@@ -145,31 +150,53 @@ adventure = () => {
                 );
         }, coolDown * 1000);
     };
-
     // Check if the room has items in it, and if so, pick them up
     if (currentRoom.items.length) {
         setTimeout(() => {
+            
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/status/",
+                    options
+                )
                 .then(res => {
                     console.log("Current inventory:", res.data.inventory);
                     var treasure = [...currentRoom.items];
-                    console.log(
-                        "The item(s) you're picking up are: ",
-                        treasure
-                    );
+                    console.log("The item(s) you're picking up are: ", treasure);
                     takeTreasure(treasure[0]);
                 })
                 .catch(err =>
                     console.log(
-                        "Error picking up treasure while on the map: ",
-                        err,
-                        currentRoom
+                        // "Error picking up treasure while on the map: ",
+                        err.message
+                        // currentRoom
                     )
                 );
         }, coolDown * 1000);
     }
-
+    // PREVIOUS VERSION
+    // if (currentRoom.items.length) {
+    //     setTimeout(() => {
+    //         axios
+    //             .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/status/", options)
+    //             .then(res => {
+    //                 console.log("Current inventory:", res.data.inventory);
+    //                 var treasure = [...currentRoom.items];
+    //                 console.log(
+    //                     "The item(s) you're picking up are: ",
+    //                     treasure
+    //                 );
+    //                 takeTreasure(treasure[0]);
+    //             })
+    //             .catch(err =>
+    //                 console.log(
+    //                     "Error picking up treasure while on the map: ",
+    //                     err,
+    //                     currentRoom
+    //                 )
+    //             );
+    //     }, coolDown * 1000);
+    // }
     /*
 The following conditional will handle:
 1. Free movement: there is nothing stopping the explorer from moving to another room
@@ -181,30 +208,31 @@ Based on the above, the if statements should have these conditions:
 3. unexplored_rooms == 0 && reversePath.length == 0
 TODO: Add in the logic that picks up treasure, etc.
 */
-
     if (unexplored_rooms.length > 0) {
         console.log("Free to explore");
         // Pick a room from the unexplored_rooms array
         let move_forward = unexplored_rooms[0];
         unexplored_rooms = [];
-
         // Add the next move to the traversalPath array
         traversalPath.push(move_forward);
-
         // Add the opposite direction move to the reversePath array
         let reverse_move = reverse(move_forward);
         reversePath.push(reverse_move);
 
-        /*
-    Use setTimeout and POST('move') to move to the next room
-    Add the new room_id to the map
-    Add the exits to the map
-    Add the opposite direction move to the map
-    Change cool down to current room cool down
-    */
+/*
+Use setTimeout and POST('move') to move to the next room
+Add the new room_id to the map
+Add the exits to the map
+Add the opposite direction move to the map
+Change cool down to current room cool down
+*/
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: move_forward }, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
+                    { direction: move_forward },
+                    options
+                )
                 .then(res => {
                     console.log("Moved forward");
                     // Save room_id to previous_room_id and set new currentRoom
@@ -230,7 +258,6 @@ TODO: Add in the logic that picks up treasure, etc.
                     graph[new_room_id] = currentRoom;
                     // Set the cooldown to the current room's cool down length
                     coolDown = res.data.cooldown;
-
                     if (Object.keys(map).length !== 500) {
                         setTimeout(() => {
                             adventure();
@@ -239,25 +266,25 @@ TODO: Add in the logic that picks up treasure, etc.
                 })
                 .catch(err => console.log("Error moving forward: ", err));
         }, coolDown * 1000);
-
         // Check if map.length == 500 and if not, loop through adventure() again
     } else if (unexplored_rooms.length == 0 && reversePath.length) {
         console.log("Dead end");
         // Get last move from reversePath array
         let reversed_path = reversePath.pop();
-
         // Add the reversed move to the traversalPath
         traversalPath.push(reversed_path);
-
         // Use setTimeout and POST('move') to move to the reversed room
         setTimeout(() => {
             axios
-                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: reversed_path }, options)
+                .post(
+                    "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
+                    { direction: reversed_path },
+                    options
+                )
                 .then(res => {
                     currentRoom = res.data;
                     coolDown = res.data.cooldown;
-
-                    if (Object.keys(map).length >= 500) {
+                    if (Object.keys(map).length !== 500) {
                         setTimeout(() => {
                             adventure();
                         }, coolDown * 1000);
@@ -276,14 +303,11 @@ TODO: Add in the logic that picks up treasure, etc.
             "It looks like you've explored the whole map...congratulations! \nJust to be sure, the current map length is: ",
             Object.keys(map).length
         );
-
-        return map;
+        console.log(map, graph);
     }
 };
-
 // Run the adventure function (while will continue till map.length==500)
 // while waiting the correct amount of time between each move
 setTimeout(() => {
     adventure();
 }, coolDown * 1000);
-

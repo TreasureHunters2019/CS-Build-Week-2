@@ -1,5 +1,4 @@
 import React, { useState, useEffect }from 'react';
-import { withRouter } from "react-router";
 import axios from "axios";
 import NavBar from "./Components/NavBar";
 import Commands from "./Components/MoveCommands";
@@ -38,9 +37,8 @@ export const App = () => {
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
   const [currentRoom, setCurrentRoom] = useState()
-  const [graph, setGraph] = useState({})
-  const [lastRoom, setLastRoom] = useState(null)
-  
+  const [roomId, setRoomId] = useState()
+
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
   axios.interceptors.request.use(
@@ -93,6 +91,9 @@ export const App = () => {
         cooldown: coolDown,
         players: players
       })
+      setRoomId(
+        room_id
+      )
     })
     .catch(
       err => console.log("Error getting initial room data", err)
@@ -130,36 +131,28 @@ export const App = () => {
 //Get Status
   const getStatus = () => {
       axios
-      .post(baseURL + "adv/init/")
+      .post(baseURL + "adv/status/")
       .then(res => {
         console.log("this is the get status data", res.data);
-        let room_id = res.data.room_id;
-        let exits = res.data.exits;
-        let description = res.data.description;
-        let items = res.data.items;
+        let playerName = res.data.name;
+        let speed = res.data.speed;
+        let strength = res.data.strength;
+        let inventory = res.data.inventory;
+        let encumbrance = res.data.encumbrance;
         let messages = res.data.messages;
-        let terrain = res.data.terrain;
-        let title = res.data.title;
-        let elevation = res.data.elevation;
-        let coordinates = res.data.coordinates;
-        let coolDown = res.data.cooldown;
-        let players = res.data.players;
+        let gold = res.data.gold;
         
-        setRoom({
-            room_id: room_id,
-            exits: exits,
-            description: description,
-            items: items,
-            messages: messages,
-            terrain: terrain,
-            title: title,
-            elevation: elevation,
-            coordinates: coordinates,
-            cooldown: coolDown,
-            players: players
-          })
+        setPlayer({
+          name: playerName,
+          speed: speed,
+          strength: strength,
+          inventory: inventory,
+          encumbrance: encumbrance,
+          messages: messages,
+          gold: gold
+        })
       })
-      .catch(err => console.log("Error getting initial Room data with status", err));
+      .catch(err => console.log("Error getting initial Room data with status", err.message));
 
       setTimeout(() => {
         axios
@@ -185,7 +178,7 @@ export const App = () => {
               gold: gold
             })
       })
-      .catch(err => console.log("Error in the status function", err))
+      .catch(err => console.log("Error in the status function", err.message))
     }, room.cooldown * 1000);
   }
 
@@ -237,7 +230,7 @@ export const App = () => {
       <CssBaseline />
       <NavBar currentRoom={currentRoom}/>
       <Info player={player} room={room} />
-      <Commands move={move} getStatus={getStatus} /> 
+      <Commands move={move} getStatus={getStatus} roomId={roomId}/> 
       <Map currentRoom={room.room_id} />
     </div>
   );

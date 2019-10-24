@@ -1,4 +1,4 @@
-module.exports = {
+const map = {
     "0": {
         n: 10,
         s: 2,
@@ -2008,3 +2008,74 @@ module.exports = {
         e: 456
     }
 };
+
+const dfs = (current_room_id, target_room_id) => {
+    // Return a list containing a path from
+    // current_room_id to target_room_id in
+    // depth-first order.
+
+    // Create a stack
+    const stack = [];
+
+    // And enqueue the path to the starting point
+    stack.push([current_room_id]);
+
+    // Like before, create a set for visited room
+    let visited = {};
+
+    while (stack.length) {
+        var path = stack.pop();
+
+        // Get the last node in the path
+        var node = path[path.length - 1];
+
+        // Check if the room has been visited or not
+        if (!visited[node]) {
+            visited[node] = true;
+
+            // Check if it is the destination vertex
+            if (node === target_room_id) {
+                console.log(path);
+                return path;
+            }
+
+            Object.values(map[node]).forEach(neighbor => {
+                var copy_path = [...path];
+                copy_path.push(Number(neighbor));
+                stack.push(copy_path);
+            });
+        }
+    }
+};
+
+const move = (current_room_id, target_room_id) => {
+    console.log('this is the current room id ' + current_room_id);
+    console.log('this is the target room id ' + target_room_id);
+    
+    const steps = dfs(current_room_id, target_room_id)
+    console.log('this is the steps ' + steps);
+    
+    const directions = [];
+    while(steps !== null || undefined){
+        for (let i = 0; i < steps.length; i++) {
+            Object.keys(map[steps[i]]).forEach(key => {
+                if (steps[i + 1] === map[steps[i]][key]) {
+                    directions.push(key);
+                }
+            });
+        }
+        return directions;
+    }
+};
+
+const toRoom = (current_room_id, target_room_id) => {
+    const directions = move(current_room_id, target_room_id);
+    console.log(
+        "The directions to get to where you're going are: ",
+        directions
+    );
+    return directions;
+};
+
+// module.exports = dfs;
+module.exports = toRoom;
