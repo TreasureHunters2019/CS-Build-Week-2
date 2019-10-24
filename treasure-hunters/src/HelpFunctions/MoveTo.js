@@ -1,3 +1,4 @@
+const axios = require("axios");
 const map = {
     "0": {
         n: 10,
@@ -2008,7 +2009,7 @@ const map = {
         e: 456
     }
 };
-
+const moves = [];
 const dfs = (current_room_id, target_room_id) => {
     // Return a list containing a path from
     // current_room_id to target_room_id in
@@ -2074,8 +2075,33 @@ const toRoom = (current_room_id, target_room_id) => {
         "The directions to get to where you're going are: ",
         directions
     );
-    return directions;
+    directions.forEach(move => {
+        moves.push(move)
+    })
+    return makeMoves();
 };
 
-// module.exports = dfs;
+const makeMoves = () => {
+    if(moves.length > 0){
+        axios
+        .post(
+            "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
+            {direction: moves[0]})
+            .then(res => {
+                console.log("you have moved a room");
+                console.log('this is the new cooldown \n', res.data.cooldown);
+                const coolDown = res.data.cooldown
+                moves.splice(0,1)
+                console.log('here are the moves\n',moves);
+                console.log('this is the next move\n', moves[0]);
+                setTimeout(() => {
+                    makeMoves()
+                }, coolDown*1000);
+            })
+            .catch(err => {console.log('Error moving to the next room', err);})
+        } else {
+            console.log("you have arrived");
+        }
+    }
+
 module.exports = toRoom;

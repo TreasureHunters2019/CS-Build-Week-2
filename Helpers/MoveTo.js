@@ -3,26 +3,6 @@ const axios = require("axios");
 const move = require("./graph");
 var fs = require("fs");
 
-
-// axios
-//     .get(
-//         "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/",
-//         options
-//     )
-//     .then(res => {
-//         console.log("init: ", res.data);
-//         // Set the cool down period to whatever it is in the current room
-//         coolDown = currentRoom.cooldown;
-//     })
-
-//         // Set the current_room to res.data
-//         currentRoom = res.data.room_id;
-
-//         // Print out the current room ID and the exits
-//         console.log("Room ID: ", currentRoom.room_id);
-//         console.log("Room exits: ", currentRoom.exits);
-
-//     .catch(err => console.error(err));
 const moves = [];
 const api_key = process.env.API_KEY;
 axios.interceptors.request.use(
@@ -43,16 +23,8 @@ const toRoom = (current_room_id, target_room_id) => {
     return makeMoves();
 };
 
-// const body = {
-//     direction: `${moves[0]}`
-// }
-
-// let coolDown = 16;
-
 const makeMoves = () => {
     if(moves.length > 0){
-        // console.log(body);
-        // console.log(`${moves[0]}`);
         axios
         .post(
             "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/",
@@ -73,10 +45,6 @@ const makeMoves = () => {
             console.log("you have arrived");
         }
     }
-
-// setTimeout(() => {
-//     makeMoves()
-// }, coolDown*1000);
 
 toRoom(303, 55)
 
