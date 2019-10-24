@@ -6,10 +6,10 @@ const toRoom = require("../HelpFunctions/MoveTo")
 // const dfs = require('../HelpFunctions/MoveTo')
 
 const CommandStyles = styled.div`
-  width: 100%;
-  background: #1c1b1b;
-  height: 60px;
+  height: 100%;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   .buttons {
     display: flex;
@@ -18,16 +18,18 @@ const CommandStyles = styled.div`
     width: 100%;
     height: 100%;
   }
+  margin-top: 20px;
 `;
 
 const Buttons = styled.button`
-  font-size: 2.4rem;
+  font-size: 1rem;
   color: #fff;
   font-weight: 700;
-  width: 100%;
+  width: 4rem;
   background: #595958;
-  border: 1px dashed black;
-  height: 100%;
+  border: 1px solid black;
+  border-radius: 10%;
+  height: 4rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -57,16 +59,24 @@ const MoveCommands = ({move, getStatus}) =>{
       e.target.value
     );
   };
+  
     return (
       <CommandStyles>
-        <div className="buttons">
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
           <Buttons onClick={() => move("n")}>N</Buttons>
-          <Buttons onClick={() => move("s")}>S</Buttons>
-          <Buttons onClick={() => move("e")}>E</Buttons>
+
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
           <Buttons onClick={() => move("w")}>W</Buttons>
-          <Buttons onClick={() => getStatus()}>Status</Buttons>
+            <div style={{ margin: "1rem" }}>
+            <Buttons onClick={() => getStatus()}>Status</Buttons>
+            </div>
+          <Buttons onClick={() => move("e")}>E</Buttons>
+          </div>
+
+          <Buttons onClick={() => move("s")}>S</Buttons>
         </div>
-        <div>
+
+        <div style={{ marginTop: "20px" }}>
             <form onSubmit={submit}>
                 <input
                     type="text"
