@@ -39,19 +39,21 @@ const Buttons = styled.button`
   }
 `;
 
-const MoveCommands = ({move, getStatus, roomId}) =>{
-  const [Room, setRoom] = useState()
-  // console.log(roomId);
-  // console.log(Room);
-  
+const MoveCommands = ({move, getStatus}) =>{
+  const [Examine, setExamine] = useState()
+
   const submit = (e) =>{
     e.preventDefault();
-    toRoom(roomId, Room)
+    Axios.post("https://lambda-treasure-hunt.herokuapp.com/api/adv/examine/",{name: `${Examine}`})
+    .then(res => {
+      console.log(res.data.description);
+      // alert(res.data.description)
+    })
   }
 
   const handleChange = (e) => {
     e.preventDefault();
-    setRoom(
+    setExamine(
       e.target.value
     );
   };
@@ -68,12 +70,12 @@ const MoveCommands = ({move, getStatus, roomId}) =>{
             <form onSubmit={submit}>
                 <input
                     type="text"
-                    name="Room"
-                    placeholder = "enter a desired room"
+                    name="Examine"
+                    placeholder = "enter what to examine"
                     onChange = {handleChange}
-                    value = {Room}
+                    value = {Examine}
                 />
-                <button onClick={() => submit}>Submit</button>
+                <button onClick={() => submit}>submit</button>
             </form>
         </div>
       </CommandStyles>

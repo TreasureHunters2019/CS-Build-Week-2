@@ -9,7 +9,7 @@ function get_proof(last_proof) {
     let hash = new Hashes.SHA256().hex(str);
 
     while (hash.slice(0, 6) !== "000000") {
-        proof++;
+        proof+=5;
         let str = `${last_proof}${proof}`;
         str = utf8.encode(str);
         hash = new Hashes.SHA256().hex(str);
@@ -20,4 +20,4 @@ function get_proof(last_proof) {
 }
 
 // add last proof and run it 
-get_proof();
+get_proof(2048);
