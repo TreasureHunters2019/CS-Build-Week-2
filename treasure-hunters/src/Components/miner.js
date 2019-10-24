@@ -20,4 +20,4 @@ function get_proof(last_proof) {
 }
 
 // add last proof and run it 
-get_proof(2048);
+get_proof(11601876);
