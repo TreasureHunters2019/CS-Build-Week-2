@@ -1,5 +1,4 @@
 import React, { useState, useEffect }from 'react';
-import { withRouter } from "react-router";
 import axios from "axios";
 import NavBar from "./Components/NavBar";
 import Commands from "./Components/MoveCommands";
@@ -38,9 +37,8 @@ export const App = () => {
   const [room, setRoom] = useState(init_room)
   const [player, setPlayer] = useState(init_player)
   const [currentRoom, setCurrentRoom] = useState()
-  const [graph, setGraph] = useState({})
-  const [lastRoom, setLastRoom] = useState(null)
-  
+  const [roomId, setRoomId] = useState()
+
   const api_key = process.env.REACT_APP_APIKEY;
   const data = {}
   axios.interceptors.request.use(
@@ -93,6 +91,9 @@ export const App = () => {
         cooldown: coolDown,
         players: players
       })
+      setRoomId(
+        room_id
+      )
     })
     .catch(
       err => console.log("Error getting initial room data", err)
@@ -229,7 +230,7 @@ export const App = () => {
       <CssBaseline />
       <NavBar currentRoom={currentRoom}/>
       <Info player={player} room={room} />
-      <Commands move={move} getStatus={getStatus} /> 
+      <Commands move={move} getStatus={getStatus} roomId={roomId}/> 
       <Map currentRoom={room.room_id} />
     </div>
   );

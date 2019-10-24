@@ -41,26 +41,44 @@ const toRoom = (current_room_id, target_room_id) => {
 
 toRoom(194, 55)
 
-async function targetRoom = (target_room_id) => {
+const targetRoom = (target_room_id) => {
            
     // get path to target
+    path_to_target=null
     path_to_target = toRoom(194, target_room_id)    
     console.log('PATH TO TARGET', path_to_target)
 
     // for each ROOM ID in path_to_target 
     // move from current room to ROOM ID 
-    path_to_target.forEach( direction => { 
-        // move function
-            setTimeout(() => {
+    
+    // for (i=0; i < path_to_target.length; i++) {
+    while ( path_to_target.length > 0 ) {
+
+        setTimeout(() => {
                 axios
-                    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
-                    .then(res => {
-                        console.log(res.data);
-                        // path_to_target.remove(path_to_target[0])
-                    })
-                    .catch(err => console.log("Error while attempting to traverse: ", err.message));
-            }, 16000);
-    });
+                .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: path_to_target[i] }, options)
+                .then(res => {
+                    console.log(res.data);
+        
+                })
+                .catch(err => console.log("Error while attempting to traverse: ", err.message));
+        }, 16000);
+
+        path_to_target.splice(0,1)
+    }
+
+    // path_to_target.forEach( async direction => { 
+    //     // move function
+    //         setTimeout(() => {
+    //             await axios
+    //                 .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", { direction: direction }, options)
+    //                 .then(res => {
+    //                     console.log(res.data);
+    //                     // path_to_target.remove(path_to_target[0])
+    //                 })
+    //                 .catch(err => console.log("Error while attempting to traverse: ", err.message));
+    //         }, 16000);
+    // });
 
 };
 

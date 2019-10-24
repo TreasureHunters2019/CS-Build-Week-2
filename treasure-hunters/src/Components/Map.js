@@ -46,6 +46,7 @@ const Map = props => {
         setLinks(newLink);
     }, []);
 
+    
     return (
         <div>
             {(!links.length && !coordinates.length) ? <div>Loading...</div> :
