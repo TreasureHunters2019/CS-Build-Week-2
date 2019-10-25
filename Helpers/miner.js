@@ -17,5 +17,5 @@ function get_proof(last_proof) {
     return hash;
 }
 
-get_proof(1102838730)
+get_proof(4242)
 
