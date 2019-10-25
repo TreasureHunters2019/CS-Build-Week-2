@@ -39,7 +39,7 @@ export const App = () => {
   const [currentRoom, setCurrentRoom] = useState()
   const [roomId, setRoomId] = useState()
 
-  const api_key = process.env.REACT_APP_APIKEY;
+  const api_key = '2d2e80973ffecf49e86b5a4a23f48fc8b2b5e0c1'
   const data = {}
   axios.interceptors.request.use(
     options => {options.headers.authorization = `Token ${api_key}`
