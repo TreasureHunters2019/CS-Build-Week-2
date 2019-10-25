@@ -28,7 +28,7 @@ function get_proof(last_proof) {
     let hash = new Hashes.SHA256().hex(str);
 
     while (hash.slice(0, 6) !== "000000") {
-        proof+=5;
+        proof+=6;
         let str = `${last_proof}${proof}`;
         str = utf8.encode(str);
         hash = new Hashes.SHA256().hex(str);
@@ -39,7 +39,7 @@ function get_proof(last_proof) {
 }
 
 // add last proof and run it 
-get_proof(2048);
+get_proof(667121562);
 
 //the axios for last proof
 //get_last();

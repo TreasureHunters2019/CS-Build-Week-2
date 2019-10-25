@@ -22,7 +22,7 @@ const toRoom = (current_room_id, target_room_id) => {
     })
     return makeMoves();
 };
-// , next_room_id: moves[0][1]
+
 const makeMoves = () => {
     if(moves.length > 0){
         axios
@@ -46,5 +46,5 @@ const makeMoves = () => {
         }
     }
 
-toRoom(123, 55)
+toRoom(457, 1)
 
