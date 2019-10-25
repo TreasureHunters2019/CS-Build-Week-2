@@ -1,20 +1,21 @@
-var sha256 = require('js-sha256');
+const Hashes = require("jshashes");
+const utf8 = require("utf8");
 
-//TODO: Install npm package here: https://github.com/emn178/js-sha256
-function mine(last_proof) {
-    let newProof = Math.floor(Math.random() * 1000000);
-    let guess = '${last_proof}${new_proof}';
-    let result = "";
+function get_proof(last_proof) {
+    let proof = Math.floor(Math.random() * 1000000);
+    let str = `${last_proof}${proof}`
+    let hash = new Hashes.SHA256().hex(str);
 
-    do {
-        newProof++
-        let guess = '${last_proof}${new_proof}';
-        result = sha256(guess);
-    } 
-    while (result.slice(0,6) != "0000000");
+    while (hash.slice(0, 6) !== "000000") {
+        proof++;
+        let str = `${last_proof}${proof}`
+        str = utf8.encode(str);
+        hash = new Hashes.SHA256().hex(str);
+    }
 
-    console.log(newProof);
-    return newProof;
-
+    console.log(proof);
+    return hash;
 }
-mine(2683092)
+
+get_proof(1102838730)
+

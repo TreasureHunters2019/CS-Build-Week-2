@@ -44,11 +44,15 @@ const move = (current_room_id, target_room_id) => {
     for (let i = 0; i < steps.length; i++) {
         Object.keys(map[steps[i]]).forEach(key => {
             if (steps[i + 1] === map[steps[i]][key]) {
-                directions.push(key);
+                directions.push([key, steps[i + 1]]);
             }
         });
     }
     return directions;
 };
 
+move(55, 377)
+
 module.exports = move;
+// module.exports = dfs;
+

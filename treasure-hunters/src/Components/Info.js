@@ -10,6 +10,7 @@ const Info = props => {
                 textAlign: "left"
             }}
         >
+            
             <div
                 style={{
                     display: "flex",
@@ -74,6 +75,7 @@ const Info = props => {
                     )}
                 </div>
             </div>
+            
             <div
                 style={{
                     display: "flex",
@@ -128,6 +130,7 @@ const Info = props => {
                     )}
                 </div>
             </div>
+            
         </div>
     );
 };
